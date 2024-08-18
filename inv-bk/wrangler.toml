@@ -6,7 +6,7 @@ workers_dev = true
 compatibility_date = "2024-08-18"
 
 [build]
-command = "bun build" # Command untuk membuild project menggunakan Bun
+command = "bun run build" # Command untuk membuild project menggunakan Bun
 cwd = "." # Path ke direktori project, "." berarti root direktori
 
 [build.upload]
