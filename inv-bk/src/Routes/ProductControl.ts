@@ -5,6 +5,7 @@ import ProductChange from "../Models/stockChange";
 import Inventory_In from "../Models/Inven_In";
 import Inventory_Out from "../Models/Inven_Out";
 import redis from "../Config/Redis";
+import type { JwtPayload } from "jsonwebtoken";
 
 
 const products = new Elysia({ prefix: "/products" })
@@ -44,7 +45,7 @@ const products = new Elysia({ prefix: "/products" })
 
 				if (user) {
 					//Menambahkan data ke tabel Product
-					const userID = user.id;
+					const userID = (user as JwtPayload).id;
 					const product = await SkemaProduk.create({
 						user_id: userID,
 						name,
@@ -53,7 +54,6 @@ const products = new Elysia({ prefix: "/products" })
 						category,
 						countInStock,
 						description,
-                        image: { url: imageUrl },
 					});
 
 					//Menghapus data di cache
@@ -63,7 +63,7 @@ const products = new Elysia({ prefix: "/products" })
 					//Menambahkan data ke tabel Inventory_In
 					await Inventory_In.create({
 						user_id: userID,
-						username_pembuat: user.username,
+						username_pembuat: (user as JwtPayload).username,
 						product_id: product?._id,
 						product_name: product?.name,
 						quantity: product?.countInStock,
@@ -133,8 +133,8 @@ const products = new Elysia({ prefix: "/products" })
 
 					//Membuat log ketika ada perubahan pada jumlah produk
 					await ProductChange.create({
-						user_id: user.id,
-						username: user.username,
+						user_id: (user as JwtPayload).id,
+						username: (user as JwtPayload).username,
 						product_id: updateProduct?.id,
 						product_name: updateProduct?.name,
 						change_type: changeType,
@@ -145,8 +145,8 @@ const products = new Elysia({ prefix: "/products" })
 					//Jika persediaan bertambah, maka akan menambahkan data ke tabel Inventory_In
 					if (changeType === "Penambahan") {
 						await Inventory_In.create({
-							user_id: user.id,
-							username_pembuat: user.username,
+							user_id: (user as JwtPayload).id,
+							username_pembuat: (user as JwtPayload).username,
 							product_id: updateProduct?.id,
 							product_name: updateProduct?.name,
 							quantity: quantityChange,
@@ -157,8 +157,8 @@ const products = new Elysia({ prefix: "/products" })
 					//Jika persediaan berkurang, maka akan menambahkan data ke tabel Inventory_Out
 					if (changeType === "Pengurangan") {
 						await Inventory_Out.create({
-							user_id: user.id,
-							username_pembuat: user.username,
+							user_id:(user as JwtPayload).id,
+							username_pembuat: (user as JwtPayload).username,
 							product_id: updateProduct?.id,
 							product_name: updateProduct?.name,
 							quantity: quantityChange,
@@ -221,8 +221,8 @@ const products = new Elysia({ prefix: "/products" })
 
 			if (menghapus) {
 				await Inventory_Out.create({
-					user_id: user.id,
-					username_pembuat: user.username,
+					user_id: (user as JwtPayload).id,
+					username_pembuat: (user as JwtPayload).username,
 					alasannya: "Dihapus",
 					product_id: searchProduct?.id,
 					product_name: searchProduct?.name,

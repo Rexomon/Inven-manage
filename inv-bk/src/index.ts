@@ -9,7 +9,7 @@ import products from "./Routes/ProductControl";
 conToDatabase();
 
 const corsOption = {
-	origin: "http://localhost:5173",
+	origin: "https://inventory.riylunz.website",
 	credentials: true,
 };
 

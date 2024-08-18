@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import type { JwtPayload } from "jsonwebtoken";
 import AuthUser from "../Middleware/Auth";
 import Inventory_In from "../Models/Inven_In";
 import Inventory_Out from "../Models/Inven_Out";
@@ -66,8 +67,8 @@ export const inventory = new Elysia({ prefix: "/inventory" })
 
 			try {
 				await Inventory_Out.create({
-					user_id: user.id,
-					username_pembuat: user.username,
+					user_id: (user as JwtPayload).id,
+					username_pembuat: (user as JwtPayload).username,
 					product_id,
 					product_name,
 					quantity,
