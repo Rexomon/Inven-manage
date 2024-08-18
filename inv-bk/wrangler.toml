@@ -1,0 +1,15 @@
+name = "inven-manage-backend"
+type = "module" # Atau "module" jika menggunakan format ES modules
+
+account_id = "68772d8343dc4e6643d26d33734a1cec"
+workers_dev = true
+compatibility_date = "2024-08-18"
+
+[build]
+command = "bun build" # Command untuk membuild project menggunakan Bun
+cwd = "." # Path ke direktori project, "." berarti root direktori
+
+[build.upload]
+format = "modules" # Gunakan "modules" jika kamu menggunakan format ES modules
+main = "./dist/index.js" # Path ke file hasil build yang menjadi entry point untuk Workers
+bucket = "./dist" # Path ke direktori hasil build
