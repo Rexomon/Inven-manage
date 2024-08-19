@@ -39,8 +39,8 @@ const users = new Elysia({ prefix: "/user" })
 				aksesToken.set({
 					value: AccessToken,
 					httpOnly: true,
-					sameSite: "lax",
-					// secure: true,
+					sameSite: "strict",
+					secure: true,
 					maxAge: 9000,
 				});
 
