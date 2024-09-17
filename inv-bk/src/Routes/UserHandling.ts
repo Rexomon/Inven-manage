@@ -29,7 +29,7 @@ const users = new Elysia({ prefix: "/user" })
 				}
 
 				// Create JWT token
-				const AccessToken = EnkodeTok({
+				const UserToken = EnkodeTok({
 					id: userLogin.id,
 					username: userLogin.username,
 					email: userLogin.email,
@@ -37,11 +37,11 @@ const users = new Elysia({ prefix: "/user" })
 
 				// Set cookie with AccessToken details
 				aksesToken.set({
-					value: AccessToken,
+					value: UserToken,
 					httpOnly: true,
-					sameSite: "strict",
-					secure: true,
-					maxAge: 9000,
+					sameSite: "lax",
+					secure: true, // Gunakan "secure: true" jika menggunakan HTTPS
+					maxAge: 900,
 				});
 
 				set.status = 201;
@@ -64,14 +64,14 @@ const users = new Elysia({ prefix: "/user" })
 			const { username, password, email } = body;
 
 			// Cek apakah username sudah terdaftar
-			const validateUsername = await userModel.findOne({ username });
+			const validateUsername = await userModel.findOne({ username: username });
 			if (validateUsername) {
 				set.status = 400;
 				return { message: "Username sudah terdaftar" };
 			}
 
 			// Cek apakah email sudah terdaftar
-			const validateEmail = await userModel.findOne({ email });
+			const validateEmail = await userModel.findOne({ email: email });
 			if (validateEmail) {
 				set.status = 400;
 				return { message: "Email sudah terdaftar" };

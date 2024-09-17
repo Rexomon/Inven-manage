@@ -16,6 +16,14 @@ const stockChange = new mongoose.Schema(
             type: String,
             required: true,
         },
+        category:{
+            type: String,
+            required: true,
+        },
+        brand:{
+            type: String,
+            required: true,
+        },
 		change_type: {
 			type: String,
 			required: true,

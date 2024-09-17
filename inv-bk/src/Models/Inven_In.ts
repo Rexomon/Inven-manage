@@ -7,14 +7,22 @@ const invenIn = new mongoose.Schema(
 			required: true,
 			ref: "User",
 		},
-		username_pembuat: {
-			type: String,
-			required: true,
-		},
 		product_id: {
 			type: mongoose.Schema.Types.ObjectId,
 			required: true,
 			ref: "Product",
+		},
+		username_pembuat: {
+			type: String,
+			required: true,
+		},
+		category: {
+			type: String,
+			required: true,
+		},
+		brand: {
+			type: String,
+			required: true,
 		},
 		product_name: {
 			type: String,

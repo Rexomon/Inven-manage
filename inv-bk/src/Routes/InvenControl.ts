@@ -1,5 +1,6 @@
 import { Elysia, t } from "elysia";
 import type { JwtPayload } from "jsonwebtoken";
+import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
 import Inventory_In from "../Models/Inven_In";
 import Inventory_Out from "../Models/Inven_Out";
@@ -9,13 +10,21 @@ export const inventory = new Elysia({ prefix: "/inventory" })
 	.use(AuthUser)
 	//Barang masuk
 	.get("/in", async ({ user, set }) => {
+		if (!user) {
+			set.status = 401;
+			return { message: "Unauthorized" };
+		}
+
 		try {
-			if (!user) {
-				set.status = 401;
-				return { message: "Unauthorized" };
+			const cacheDataIn = await redis.get("inventory_in");
+
+			if (cacheDataIn) {
+				return { invenIn: JSON.parse(cacheDataIn) };
 			}
 
 			const invenIn = await Inventory_In.find();
+
+			await redis.set("inventory_in", JSON.stringify(invenIn), "EX", 900);
 
 			set.status = 200;
 			return { invenIn };
@@ -25,13 +34,21 @@ export const inventory = new Elysia({ prefix: "/inventory" })
 	})
 	//Barang keluar
 	.get("/out", async ({ user, set }) => {
+		if (!user) {
+			set.status = 401;
+			return { message: "Unauthorized" };
+		}
+
 		try {
-			if (!user) {
-				set.status = 401;
-				return { message: "Unauthorized" };
+			const cacheDataOut = await redis.get("inventory_out");
+
+			if (cacheDataOut) {
+				return { invenOut: JSON.parse(cacheDataOut) };
 			}
 
 			const invenOut = await Inventory_Out.find();
+
+			await redis.set("inventory_out", JSON.stringify(invenOut), "EX", 900);
 
 			set.status = 200;
 			return { invenOut };
@@ -41,13 +58,21 @@ export const inventory = new Elysia({ prefix: "/inventory" })
 	})
 	//Log perubahan stok
 	.get("/logs", async ({ user, set }) => {
+		if (!user) {
+			set.status = 401;
+			return { message: "Unauthorized" };
+		}
+
 		try {
-			if (!user) {
-				set.status = 401;
-				return { message: "Unauthorized" };
+			const cacheStockChange = await redis.get("stock_change");
+
+			if (cacheStockChange) {
+				return { stockChange: JSON.parse(cacheStockChange) };
 			}
 
 			const stockChange = await ProductChange.find();
+
+			await redis.set("stock_change", JSON.stringify(stockChange), "EX", 900);
 
 			set.status = 200;
 			return { stockChange };
@@ -59,13 +84,14 @@ export const inventory = new Elysia({ prefix: "/inventory" })
 	.post(
 		"/out",
 		async ({ user, body, set }) => {
-			const { product_id, product_name, quantity } = body;
 			if (!user) {
 				set.status = 401;
 				return { message: "Unauthorized" };
 			}
 
 			try {
+				const { product_id, product_name, quantity } = body;
+
 				await Inventory_Out.create({
 					user_id: (user as JwtPayload).id,
 					username_pembuat: (user as JwtPayload).username,
@@ -88,7 +114,7 @@ export const inventory = new Elysia({ prefix: "/inventory" })
 				username_pembuat: t.String(),
 				product_id: t.String(),
 				product_name: t.String(),
-				quantity: t.String(),
+				quantity: t.Number(),
 				date_out: t.String(),
 			}),
 		},

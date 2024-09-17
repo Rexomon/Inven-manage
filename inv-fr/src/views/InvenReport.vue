@@ -10,8 +10,11 @@
                 <li v-for="item in inventoryIn" :key="item._id" class="mb-2">
                     <div class="text-xl font-semibold">{{ item.product_name }}</div>
                     <div class="text-base text-gray-700 font-semibold">Pengguna: {{ item.username_pembuat }}</div>
+                    <div class="text-base text-gray-700">Brand: {{ item.brand }}</div>
+                    <div class="text-base text-gray-700">Category: {{ item.category }}</div>
                     <div class="text-base text-gray-700">Jumlah: {{ item.quantity }}</div>
-                    <div class="text-base text-gray-700">Tanggal: {{ new Date(item.date_in).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) }}</div>
+                    <div class="text-base text-gray-700">Tanggal: {{ new Date(item.date_in).toLocaleDateString('id-ID', { weekday: "long", day: 'numeric', month: 'long', year: 'numeric'}) }}</div>
+                    <div class="text-base text-gray-700">Pukul: {{ new Date(item.date_in).toLocaleString('id-ID', { hour: "2-digit", minute:"2-digit"}) }}</div>
                     <hr>
                 </li>
             </ul>
@@ -29,8 +32,11 @@
                     <div class="text-xl font-semibold">{{ item.product_name }}</div>
                     <div class="text-base text-gray-700 font-semibold">Pengguna: {{ item.username_pembuat }}</div>
                     <div class="text-base text-gray-700">Alasan: {{ item.alasannya }}</div>
+                    <div class="text-base text-gray-700">Brand: {{ item.brand }}</div>
+                    <div class="text-base text-gray-700">Category: {{ item.category }}</div>
                     <div class="text-base text-gray-700">Jumlah: {{ item.quantity }}</div>
-                    <div class="text-base text-gray-700">Tanggal: {{ new Date(item.date_out).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) }}</div>
+                    <div class="text-base text-gray-700">Tanggal: {{ new Date(item.date_out).toLocaleDateString('id-ID', { weekday: "long", day: 'numeric', month: 'long', year: 'numeric'}) }}</div>
+                    <div class="text-base text-gray-700">Pukul: {{ new Date(item.date_out).toLocaleString('id-ID', { hour: "2-digit", minute:"2-digit"}) }}</div>
                     <hr>
                 </li>
             </ul>
@@ -48,8 +54,11 @@
                     <div class="text-xl font-semibold">{{ log.change_type }}</div>
                     <div class="text-base text-gray-700 font-semibold">Pengguna: {{ log.username }}</div>
                     <div class="text-base text-gray-700">Produk: {{ log.product_name }}</div>
+                    <div class="text-base text-gray-700">Brand: {{ log.brand }}</div>
+                    <div class="text-base text-gray-700">Category: {{ log.category }}</div>
                     <div class="text-base text-gray-700">Jumlah: {{ log.quantity_change }}</div>
-                    <div class="text-base text-gray-700">Tanggal: {{ new Date(log.date_change).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) }}</div>
+                    <div class="text-base text-gray-700">Tanggal: {{ new Date(log.date_change).toLocaleDateString('id-ID', { weekday: "long", day: 'numeric', month: 'long', year: 'numeric'}) }}</div>
+                    <div class="text-base text-gray-700">Pukul: {{ new Date(log.date_change).toLocaleString('id-ID', { hour: "2-digit", minute:"2-digit"}) }}</div>
                     <hr>
                 </li>
             </ul>
