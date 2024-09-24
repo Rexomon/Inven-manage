@@ -6,6 +6,7 @@
             <div>
                 <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
                 <input v-model="form.username" type="text" id="username" placeholder="Username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+                <p v-if="usernameError" class="error-message">{{ usernameError }}</p>
             </div>
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
@@ -14,6 +15,7 @@
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input v-model="form.email" type="email" id="email" placeholder="Email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+                <p v-if="emailError" class="error-message">{{ emailError }}</p>
             </div>
             <p >
                 Sudah punya akun?
@@ -26,7 +28,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import axios from "axios";
 
 const form = ref({
@@ -39,11 +41,23 @@ export default {
 	data() {
 		return {
 			form,
+            usernameError: "",
+            emailError: "",
 		};
 	},
 
+    watch:{
+        form:{
+            handler(){
+                this.usernameError = "";
+                this.emailError = "";
+            },
+            deep: true,
+        }
+    },
+
 	methods: {
-		async submitRegister() {
+		async submitRegister(){
 			try {
 				const response = await axios.post(
 					`${import.meta.env.VITE_BACKEND_PORT}/user/register`,
@@ -57,21 +71,27 @@ export default {
 				}
 			} catch (error) {
 				if (error.response.data.message === "Username sudah terdaftar") {
-					alert("Username sudah terdaftar");
+					this.usernameError = "Username sudah terdaftar";
 				}
 				if (error.response.data.message === "Email sudah terdaftar") {
-					alert("Email sudah terdaftar");
+					this.emailError = "Email sudah terdaftar";
 				}
 			}
-		},
-	},
+    	}
+    },
 };
+
+
 </script>
 
 <style scoped>
 html, body {
     height: 100%;
     margin: 0;
+}
+
+.error-message {
+    color: red;
 }
 
 .jenck {
