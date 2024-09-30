@@ -8,7 +8,7 @@ import products from "./Routes/ProductControl";
 conToDatabase();
 
 const corsOption = {
-	origin: "https://inventory.riylunz.website",
+	origin: "https://front.riylunz.website",
 	credentials: true,
 };
 
