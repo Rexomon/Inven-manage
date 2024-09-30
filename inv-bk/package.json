@@ -4,20 +4,20 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"dev": "bun run --watch src/index.ts",
-		"build": "tsc"
+		"build": "bun build src/index.ts --target bun --outdir ./dist",
+		"start": "NODE_ENV=production bun dist/index.js"
 	},
 	"dependencies": {
-		"@elysiajs/cors": "^1.1.0",
-		"@elysiajs/swagger": "^1.1.0",
+		"@elysiajs/cors": "^1.1.1",
 		"elysia": "latest",
 		"ioredis": "^5.4.1",
 		"jsonwebtoken": "^9.0.2",
-		"mongoose": "^8.5.2",
-		"typescript": "^5.5.4"
+		"mongoose": "^8.7.0",
+		"typescript": "^5.6.2"
 	},
 	"devDependencies": {
 		"@types/cors": "^2.8.17",
-		"@types/jsonwebtoken": "^9.0.6",
+		"@types/jsonwebtoken": "^9.0.7",
 		"bun-types": "latest"
 	},
 	"module": "src/index.ts"
