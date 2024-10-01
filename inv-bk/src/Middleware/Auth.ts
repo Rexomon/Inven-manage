@@ -16,7 +16,7 @@ const AuthUser = (app: Elysia) =>
 				return { message: "Invalid Token" };
 			}
 
-            const user = userLoggedIn
+            const user = userLoggedIn;
 
 			//Penting!
 			return { user }; //Mengembalikan data user yang sedang login
