@@ -92,7 +92,7 @@ const users = new Elysia({ prefix: "/user" })
 			body: t.Object({
 				username: t.String(),
 				password: t.String(),
-				email: t.String(),
+				email: t.String({ format: "email" }),
 			}),
 		},
 	)

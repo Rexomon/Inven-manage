@@ -3,27 +3,27 @@
         <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 class="text-2xl font-bold text-center mb-6">Sign in</h1>
         <form @submit.prevent="submitLogin" class="space-y-4">
-        <div>
-            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-            <input v-model="form.username" type="text" id="username" placeholder="Username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-        </div>
-        <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input v-model="form.password" type="password" id="password" placeholder="Password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-            <p v-if="statusError" class="error-message">{{ statusError }}</p>
-        </div>
-        <p>
-            Belum punya akun?
-            <RouterLink class="jenck" to="/signup">Sign up</RouterLink>
-        </p>
-        <button type="submit" class="w-full py-2 px-4 bg-blue-800 text-white font-semibold rounded-md shadow hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Sign in</button>
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                <input v-model="form.username" type="text" id="username" placeholder="Username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input v-model="form.password" type="password" id="password" placeholder="Password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+                <p v-if="statusError" class="error-message">{{ statusError }}</p>
+            </div>
+            <p>
+                Belum punya akun?
+                <RouterLink class="jenck" to="/signup">Sign up</RouterLink>
+            </p>
+            <button type="submit" class="w-full py-2 px-4 bg-blue-800 text-white font-semibold rounded-md shadow hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Sign in</button>
         </form>
         </div>
     </div>
 </template>
 
 <script>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import axios from "axios";
 
 const form = ref({
@@ -35,18 +35,18 @@ export default {
 	data() {
 		return {
 			form,
-            statusError: "",
+			statusError: "",
 		};
 	},
 
-    watch:{
-        form:{
-            handler(){
-                this.statusError = "";
-            },
-            deep: true,
-        }
-    },
+	watch: {
+		form: {
+			handler() {
+				this.statusError = "";
+			},
+			deep: true,
+		},
+	},
 
 	methods: {
 		async submitLogin() {
@@ -72,6 +72,7 @@ export default {
 	},
 };
 </script>
+
 
 <style scoped>
 html, body {

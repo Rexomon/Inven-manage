@@ -6,7 +6,7 @@ import Inventory_In from "../Models/Inven_In";
 import Inventory_Out from "../Models/Inven_Out";
 import ProductChange from "../Models/stockChange";
 
-export const inventory = new Elysia({ prefix: "/inventory" })
+const inventory = new Elysia({ prefix: "/inventory" })
 	.use(AuthUser)
 	//Barang masuk
 	.get("/in", async ({ user, set }) => {

@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import axios from "axios";
 
 const form = ref({
@@ -41,23 +41,23 @@ export default {
 	data() {
 		return {
 			form,
-            usernameError: "",
-            emailError: "",
+			usernameError: "",
+			emailError: "",
 		};
 	},
 
-    watch:{
-        form:{
-            handler(){
-                this.usernameError = "";
-                this.emailError = "";
-            },
-            deep: true,
-        }
-    },
+	watch: {
+		form: {
+			handler() {
+				this.usernameError = "";
+				this.emailError = "";
+			},
+			deep: true,
+		},
+	},
 
 	methods: {
-		async submitRegister(){
+		async submitRegister() {
 			try {
 				const response = await axios.post(
 					`${import.meta.env.VITE_BACKEND_PORT}/user/register`,
@@ -77,11 +77,9 @@ export default {
 					this.emailError = "Email sudah terdaftar";
 				}
 			}
-    	}
-    },
+		},
+	},
 };
-
-
 </script>
 
 <style scoped>

@@ -50,7 +50,7 @@ export default {
 				const response = await axios.get(
 					`${import.meta.env.VITE_BACKEND_PORT}/products/`,
 				);
-                const isiData = response.data.products;
+				const isiData = response.data.products;
 				this.products = isiData;
 			} catch (error) {
 				if (error.response.status === 401) {
@@ -80,7 +80,7 @@ export default {
 			const dataProduct = JSON.stringify(product);
 			localStorage.setItem("idProduct", dataProduct);
 
-            window.location.href = "/update-product";
+			this.$router.push("/update-product");
 		},
 
 		formatPrice(value) {

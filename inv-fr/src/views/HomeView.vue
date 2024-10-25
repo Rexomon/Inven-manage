@@ -12,14 +12,40 @@ export default {
 			totalProducts,
 			lowStockProducts,
 			outOfStockProducts,
+			isVerified: false,
+            showOverlay: true,
 		};
 	},
 
 	mounted() {
 		this.fetchData();
+		this.verifyStatus();
+		if (this.showOverlay) {
+			window.onloadTurnstileCallback = () => {
+				turnstile.render("#myTurnstile", {
+					sitekey: "0x4AAAAAAAwzSq23sgTJwVH2",
+					callback: this.handlerVerification,
+				});
+			};
+		}
 	},
 
 	methods: {
+		verifyStatus() {
+			const isVerified = localStorage.getItem("isVerified");
+			if (isVerified === "true") {
+				this.showOverlay = false;
+			}
+		},
+
+		handlerVerification() {
+			localStorage.setItem("isVerified", true);
+            this.showOverlay = false;
+			setTimeout(() => {
+				document.getElementById("myTurnstile").style.display = "none";
+			}, 2000);
+		},
+
 		async fetchData() {
 			try {
 				const response = await axios.get(
@@ -73,6 +99,9 @@ export default {
         </router-link>
       </div>
     </div>
+    <div v-if="showOverlay" class="overlay">
+        <div id="myTurnstile" class="turnstile-container"></div>
+    </div>
   </main>
 </template>
 
@@ -80,6 +109,25 @@ export default {
 
 main {
   margin-top: 60px;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.turnstile-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 </style>
