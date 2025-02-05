@@ -1,11 +1,11 @@
 import { Elysia, t } from "elysia";
-import AuthUser from "../Middleware/Auth";
-import SkemaProduk from "../Models/productModel";
-import ProductChange from "../Models/stockChange";
-import Inventory_In from "../Models/Inven_In";
-import Inventory_Out from "../Models/Inven_Out";
-import redis from "../Config/Redis";
 import type { JwtPayload } from "jsonwebtoken";
+import redis from "../Config/Redis";
+import AuthUser from "../Middleware/Auth";
+import InventoryEntry from "../Models/Inven_In";
+import InventoryOut from "../Models/Inven_Out";
+import InventoryProductLog from "../Models/productLogs";
+import SkemaProduk from "../Models/productModel";
 
 const products = new Elysia({ prefix: "/products" })
 	.use(AuthUser)
@@ -24,14 +24,13 @@ const products = new Elysia({ prefix: "/products" })
 				return { products: JSON.parse(cacheData) };
 			}
 
-			//Jika data tidak ada di cache, maka akan diambil dari
+			//Menyimpan data ke cache
 			const products = await SkemaProduk.find();
 
-			//Menyimpan data ke cache
 			await redis.set("all_products", JSON.stringify(products), "EX", 900);
 
 			set.status = 200;
-			return { products };
+            return { products };
 		} catch (error) {
 			set.status = 400;
 			return { message: error };
@@ -49,9 +48,10 @@ const products = new Elysia({ prefix: "/products" })
 			try {
 				const { name, price, brand, category, countInStock, description } =
 					body;
+                const userID: string = (user as JwtPayload).id;
+                const username: string = (user as JwtPayload).username;
 
 				//Menambahkan data ke tabel SkemaProduk
-				const userID = (user as JwtPayload).id;
 				const product = await SkemaProduk.create({
 					user_id: userID,
 					name,
@@ -63,14 +63,13 @@ const products = new Elysia({ prefix: "/products" })
 				});
 
 				//Menghapus data di cache
-				await redis.del("all_products");
-				await redis.del("product_summary");
-				await redis.del("inventory_in");
+				const redisCache = ["all_products", "product_summary", "inventory_in"];
+				await redis.del(redisCache);
 
 				//Menambahkan data ke tabel Inventory_In
-				await Inventory_In.create({
+				await InventoryEntry.create({
 					user_id: userID,
-					username_pembuat: (user as JwtPayload).username,
+					username_pembuat: username,
 					product_id: product?._id,
 					product_name: product?.name,
 					category: product?.category,
@@ -107,30 +106,31 @@ const products = new Elysia({ prefix: "/products" })
 
 			try {
 				const searchProduct = await SkemaProduk.findById(id);
+                const userID: string = (user as JwtPayload).id;
+				const username: string = (user as JwtPayload).username;
 
-				if (!searchProduct) {
+                if (!searchProduct) {
 					set.status = 404;
 					return { message: "Product not found" };
 				}
 
-				//Mengambil data persediaan sebelum diperbarui
 				const stockSebelumUpdate = searchProduct?.countInStock as number;
 
-				//Memperbarui data di tabel SkemaProduk
 				const updateProduct = await SkemaProduk.findByIdAndUpdate(
 					searchProduct,
 					body,
 					{ new: true },
 				);
 
-				//Menghapus data di cache agar data yang di cache bisa diperbarui
-				await redis.del("all_products");
-				await redis.del("product_summary");
-				await redis.del("inventory_in");
-				await redis.del("inventory_out");
-				await redis.del("stock_change");
+				const redisCache = [
+					"all_products",
+					"product_summary",
+					"inventory_in",
+					"inventory_out",
+					"stock_change",
+				];
+				await redis.del(redisCache);
 
-				//Mengambil data persediaan setelah diperbarui
 				const stockSetelahUpdate = updateProduct?.countInStock as number;
 
 				//Perkondisian membandingkan jumlah persediaan barang
@@ -144,9 +144,9 @@ const products = new Elysia({ prefix: "/products" })
 					);
 
 					//Membuat log ketika ada perubahan pada jumlah produk
-					await ProductChange.create({
-						user_id: (user as JwtPayload).id,
-						username: (user as JwtPayload).username,
+					await InventoryProductLog.create({
+						user_id: userID,
+						username: username,
 						product_id: updateProduct?.id,
 						product_name: updateProduct?.name,
 						category: updateProduct?.category,
@@ -158,9 +158,9 @@ const products = new Elysia({ prefix: "/products" })
 
 					//Jika persediaan bertambah, maka akan menambahkan data ke tabel Inventory_In
 					if (changeType === "Penambahan") {
-						await Inventory_In.create({
-							user_id: (user as JwtPayload).id,
-							username_pembuat: (user as JwtPayload).username,
+						await InventoryEntry.create({
+							user_id: userID,
+							username_pembuat: username,
 							product_id: updateProduct?.id,
 							product_name: updateProduct?.name,
 							category: updateProduct?.category,
@@ -172,9 +172,9 @@ const products = new Elysia({ prefix: "/products" })
 
 					//Jika persediaan berkurang, maka akan menambahkan data ke tabel Inventory_Out
 					if (changeType === "Pengurangan") {
-						await Inventory_Out.create({
-							user_id: (user as JwtPayload).id,
-							username_pembuat: (user as JwtPayload).username,
+						await InventoryOut.create({
+							user_id: userID,
+							username_pembuat: username,
 							product_id: updateProduct?.id,
 							product_name: updateProduct?.name,
 							category: updateProduct?.category,
@@ -186,30 +186,7 @@ const products = new Elysia({ prefix: "/products" })
 				}
 				set.status = 200;
 				return { message: "Product updated" };
-				// 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
-				// 			// Juga bisa menggunakan if seperti ini, tapi lebih baik menggunakan if di atas agar lebih efisien
-				// 			/////////////////////////////////////////////////////////////////////////////////////////////////////////
-				// 			// if (stockSebelumUpdate < stockSetelahUpdate) {
-				// 			// 	await ProductChange.create({
-				// 			// 		product_id: updateProduct?.id,
-				// 			// 		product_name: updateProduct?.name,
-				// 			//         change_type:"Penambahan",
-				// 			// 		quantity_change: stockSetelahUpdate - stockSebelumUpdate,
-				// 			// 		date_change: new Date(),
-				// 			// 	});
-				// 			//     return res.status(200).json({ message: "Logs Created"});
-				// 			// }
 
-				// 			// if (stockSebelumUpdate > stockSetelahUpdate) {
-				// 			// 	await ProductChange.create({
-				// 			// 		product_id: updateProduct?.id,
-				// 			// 		product_name: updateProduct?.name,
-				// 			//         change_type:"Pengurangan",
-				// 			// 		quantity_change: stockSebelumUpdate - stockSetelahUpdate,
-				// 			// 		date_change: new Date(),
-				// 			// 	});
-				// 			//     return res.status(200).json({ message: "Logs Created"});
-				// 			// }
 			} catch (error) {
 				return { message: error };
 			}
@@ -237,10 +214,13 @@ const products = new Elysia({ prefix: "/products" })
 
 			const menghapus = await SkemaProduk.findByIdAndDelete(searchProduct);
 
+            const userID: string = (user as JwtPayload).id;
+            const username: string = (user as JwtPayload).username;
+
 			if (menghapus) {
-				await Inventory_Out.create({
-					user_id: (user as JwtPayload).id,
-					username_pembuat: (user as JwtPayload).username,
+				await InventoryShipment.create({
+					user_id: userID,
+					username_pembuat: username,
 					alasannya: "Dihapus",
 					product_id: searchProduct?.id,
 					product_name: searchProduct?.name,
@@ -250,10 +230,10 @@ const products = new Elysia({ prefix: "/products" })
 					date_out: new Date(),
 				});
 			}
+
 			//Menghapus data di cache
-			await redis.del("all_products");
-			await redis.del("product_summary");
-			await redis.del("inventory_out");
+			const redisCache = ["all_products", "product_summary", "inventory_out"];
+			await redis.del(redisCache);
 
 			set.status = 200;
 			return { message: "Product deleted" };

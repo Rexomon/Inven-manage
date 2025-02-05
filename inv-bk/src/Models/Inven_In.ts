@@ -36,11 +36,8 @@ const invenIn = new mongoose.Schema(
 			type: Date,
 			required: true,
 		},
-	},
-	{
-		timestamps: true,
-	},
+	}
 );
 
-const Inventory_In = mongoose.model("Inventory_In", invenIn);
-export default Inventory_In;
+const InventoryEntry = mongoose.model("Inventory_In", invenIn);
+export default InventoryEntry;

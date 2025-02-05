@@ -10,11 +10,12 @@ conToDatabase();
 const corsOption = {
 	origin: process.env.DOMAIN_ORIGIN,
 	credentials: true,
+    methods: ["GET","POST","PATCH","DELETE"],
 };
 
 const app = new Elysia()
 	.use(cors(corsOption)) //Memanggil Cors
-	.use(userHandling) //Memanggil userHandling
+	.use(userHandling)  //Memanggil userHandling
 	.use(products) //Memanggil product
 	.use(inventory) //Memanggil inventory
 	.listen(3000);

@@ -40,5 +40,5 @@ const invenOut = new mongoose.Schema({
 	},
 });
 
-const Inventory_Out = mongoose.model("Inventory_Out", invenOut);
-export default Inventory_Out;
+const InventoryOut = mongoose.model("Inventory_Out", invenOut);
+export default InventoryOut;

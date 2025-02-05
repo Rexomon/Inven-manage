@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const stockChange = new mongoose.Schema(
+const productLogs = new mongoose.Schema(
 	{
         product_id: {
             type: mongoose.Schema.Types.ObjectId,
@@ -43,5 +43,5 @@ const stockChange = new mongoose.Schema(
 	},
 );
 
-const ProductChange = mongoose.model("Product-Logs", stockChange);
-export default ProductChange;
+const InventoryProductLog = mongoose.model("Product-Logs", productLogs);
+export default InventoryProductLog;

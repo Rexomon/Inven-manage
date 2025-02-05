@@ -43,7 +43,7 @@ export default {
             this.showOverlay = false;
 			setTimeout(() => {
 				document.getElementById("myTurnstile").style.display = "none";
-			}, 2000);
+			}, 3000);
 		},
 
 		async fetchData() {

@@ -1,24 +1,24 @@
 {
-	"name": "inv-bk",
-	"version": "1.0.50",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "bun run --watch src/index.ts",
-		"build": "bun build src/index.ts --target bun --outdir ./dist",
-		"start": "NODE_ENV=production bun dist/index.js"
-	},
-	"dependencies": {
-		"@elysiajs/cors": "^1.1.1",
-		"elysia": "latest",
-		"ioredis": "^5.4.1",
-		"jsonwebtoken": "^9.0.2",
-		"mongoose": "^8.7.2",
-		"typescript": "^5.6.3"
-	},
-	"devDependencies": {
-		"@types/cors": "^2.8.17",
-		"@types/jsonwebtoken": "^9.0.7",
-		"bun-types": "latest"
-	},
-	"module": "src/index.ts"
+    "name": "inv-bk",
+    "version": "1.0.50",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "bun run --watch src/index.ts",
+        "build": "bun build src/index.ts --target bun --outdir ./dist",
+        "start": "NODE_ENV=production bun dist/index.js"
+    },
+    "dependencies": {
+        "@elysiajs/cors": "^1.2.0",
+        "elysia": "latest",
+        "ioredis": "^5.4.2",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.9.7",
+        "typescript": "^5.7.3"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.17",
+        "@types/jsonwebtoken": "^9.0.8",
+        "bun-types": "latest"
+    },
+    "module": "src/index.ts"
 }

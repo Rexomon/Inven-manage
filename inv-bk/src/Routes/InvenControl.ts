@@ -2,9 +2,9 @@ import { Elysia, t } from "elysia";
 import type { JwtPayload } from "jsonwebtoken";
 import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
-import Inventory_In from "../Models/Inven_In";
-import Inventory_Out from "../Models/Inven_Out";
-import ProductChange from "../Models/stockChange";
+import InventoryEntry from "../Models/Inven_In";
+import InventoryOut from "../Models/Inven_Out";
+import InventoryProductLog from "../Models/productLogs";
 
 const inventory = new Elysia({ prefix: "/inventory" })
 	.use(AuthUser)
@@ -22,7 +22,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 				return { invenIn: JSON.parse(cacheDataIn) };
 			}
 
-			const invenIn = await Inventory_In.find();
+			const invenIn = await InventoryEntry.find();
 
 			await redis.set("inventory_in", JSON.stringify(invenIn), "EX", 900);
 
@@ -46,7 +46,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 				return { invenOut: JSON.parse(cacheDataOut) };
 			}
 
-			const invenOut = await Inventory_Out.find();
+			const invenOut = await InventoryOut.find();
 
 			await redis.set("inventory_out", JSON.stringify(invenOut), "EX", 900);
 
@@ -64,13 +64,13 @@ const inventory = new Elysia({ prefix: "/inventory" })
 		}
 
 		try {
-			const cacheStockChange = await redis.get("stock_change");
+			const cacheProductLog = await redis.get("stock_change");
 
-			if (cacheStockChange) {
-				return { stockChange: JSON.parse(cacheStockChange) };
+			if (cacheProductLog) {
+				return { stockChange: JSON.parse(cacheProductLog) };
 			}
 
-			const stockChange = await ProductChange.find();
+			const stockChange = await InventoryProductLog.find();
 
 			await redis.set("stock_change", JSON.stringify(stockChange), "EX", 900);
 
@@ -91,10 +91,12 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			try {
 				const { product_id, product_name, quantity } = body;
+                const userID: string = (user as JwtPayload).id;
+                const username: string = (user as JwtPayload).username;
 
-				await Inventory_Out.create({
-					user_id: (user as JwtPayload).id,
-					username_pembuat: (user as JwtPayload).username,
+                await InventoryOut.create({
+					user_id: userID,
+					username_pembuat: username,
 					product_id,
 					product_name,
 					quantity,
