@@ -12,7 +12,7 @@ export default defineConfig({
 		},
 	},
     server:{
-		allowedHosts: [import.meta.env.AllowedHost],
+        allowedHosts: [import.meta.env.ALLOWED_HOST as string],
         warmup: {
             clientFiles: ["./src/components/*.vue", "./src/views/*.vue"],
         },
