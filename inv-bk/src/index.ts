@@ -14,10 +14,14 @@ const corsOption = {
 };
 
 const app = new Elysia()
-	.use(cors(corsOption)) //Memanggil Cors
-	.use(userHandling)  //Memanggil userHandling
-	.use(products) //Memanggil product
-	.use(inventory) //Memanggil inventory
+	.use(cors(corsOption))
+    .get("/", async ({ set }) => {
+        set.status = 200;
+        return { message: "Hai!" };
+    })
+	.use(userHandling)
+	.use(products)
+	.use(inventory)
 	.listen(3000);
 
 console.log(

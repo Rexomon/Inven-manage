@@ -212,13 +212,13 @@ const products = new Elysia({ prefix: "/products" })
 		try {
 			const searchProduct = await SkemaProduk.findById(id);
 
-			const menghapus = await SkemaProduk.findByIdAndDelete(searchProduct);
+			const deletedProduct = await SkemaProduk.findByIdAndDelete(searchProduct);
 
             const userID: string = (user as JwtPayload).id;
             const username: string = (user as JwtPayload).username;
 
-			if (menghapus) {
-				await InventoryShipment.create({
+			if (deletedProduct) {
+				await InventoryOut.create({
 					user_id: userID,
 					username_pembuat: username,
 					alasannya: "Dihapus",
