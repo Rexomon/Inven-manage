@@ -1,13 +1,22 @@
 import { Elysia, t } from "elysia";
-import { EnkodeTok } from "../Middleware/Jwt";
+import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
+import { JwtAksesToken, JwtRefreshToken } from "../Middleware/Jwt";
 import userModel from "../Models/userModel";
 
 const users = new Elysia({ prefix: "/user" })
+	.use(JwtAksesToken())
+	.use(JwtRefreshToken())
 	.post(
 		// Login user
 		"/login",
-		async ({ body, set, cookie: { aksesToken } }) => {
+		async ({
+			body,
+			set,
+			cookie: { aksesToken, refreshToken },
+			JwtAksesToken,
+			JwtRefreshToken,
+		}) => {
 			try {
 				const { username, password } = body;
 
@@ -28,24 +37,54 @@ const users = new Elysia({ prefix: "/user" })
 					return { message: "Username atau Password salah" };
 				}
 
-				// Create JWT token
-				const UserToken = EnkodeTok({
+				// Generate access token and refresh token
+				const currentTime = Math.floor(Date.now() / 1000);
+
+				const AccessToken = await JwtAksesToken.sign({
 					id: userLogin.id,
 					username: userLogin.username,
 					email: userLogin.email,
+					iat: currentTime,
+					exp: currentTime + 900,
 				});
 
-				// Set cookie with AccessToken details
+				const refreshAccessToken = await JwtRefreshToken.sign({
+					id: userLogin.id,
+					username: userLogin.username,
+					email: userLogin.email,
+					iat: currentTime,
+					exp: currentTime + 604800,
+				});
+
+				// Set the access token and refresh token to the cookie
 				aksesToken.set({
-					value: UserToken,
+					value: AccessToken,
 					httpOnly: true,
 					sameSite: "lax",
 					secure: true, // Gunakan "secure: true" jika menggunakan HTTPS
 					maxAge: 900,
 				});
 
+				refreshToken.set({
+					value: refreshAccessToken,
+					httpOnly: true,
+					sameSite: "lax",
+					secure: true, // Gunakan "secure: true" jika menggunakan HTTPS
+					maxAge: 604800,
+				});
+
+				await redis.set(
+					`refreshToken:${userLogin.id}`,
+					refreshAccessToken,
+					"EX",
+					604800,
+				);
+
 				set.status = 201;
-				return { pesan: "sukses" };
+				return {
+					pesan: "Sukses Login",
+					token: { aksesToken: AccessToken, refreshToken: refreshAccessToken },
+				};
 			} catch (error) {
 				console.error(error);
 			}
@@ -96,16 +135,105 @@ const users = new Elysia({ prefix: "/user" })
 			}),
 		},
 	)
-	// Get current user
-	.group("/current", (app) =>
-		app.use(AuthUser).get("/", async ({ set, user }) => {
+    // Refresh token
+	.post(
+		"/refresh",
+		async ({
+			set,
+			cookie: { aksesToken, refreshToken },
+			JwtAksesToken,
+			JwtRefreshToken,
+		}) => {
+			if (!refreshToken.value) {
+				set.status = 401;
+				return { message: "Unauthorized" };
+			}
+
+			const storedRefreshToken = await JwtRefreshToken.verify(
+				refreshToken.value as string,
+			);
+			if (!storedRefreshToken) {
+				set.status = 401;
+				return { message: "Unauthorized" };
+			}
+
+			const user = await userModel.findOne({ _id: storedRefreshToken.id });
 			if (!user) {
 				set.status = 401;
 				return { message: "Unauthorized" };
 			}
+
+			const currentTime = Math.floor(Date.now() / 1000);
+
+			const newAccessToken = await JwtAksesToken.sign({
+				id: user.id,
+				username: user.username,
+				email: user.email,
+				iat: currentTime,
+				exp: currentTime + 900,
+			});
+
+			aksesToken.set({
+				value: newAccessToken,
+				httpOnly: true,
+				sameSite: "lax",
+				secure: true,
+				maxAge: 900,
+			});
+
+			const newRefreshToken = await JwtRefreshToken.sign({
+				id: user.id,
+				username: user.username,
+				email: user.email,
+				iat: currentTime,
+				exp: currentTime + 604800,
+			});
+
+			refreshToken.set({
+				value: newRefreshToken,
+				httpOnly: true,
+				sameSite: "lax",
+				secure: true,
+				maxAge: 604800,
+			});
+
+			await redis.set(`refreshToken:${user.id}`, newRefreshToken, "EX", 604800);
+
 			set.status = 200;
-			return { message: "Halo", user };
-		}),
+			return {
+				message: "Token refreshed",
+				token: { aksesToken: newAccessToken, refreshToken: newRefreshToken },
+			};
+		},
+	)
+
+	// Get current user
+	.use(AuthUser)
+	.get("/current", async ({ set, user }) => {
+		if (!user) {
+			set.status = 401;
+			return { message: "Unauthorized" };
+		}
+		set.status = 200;
+		return { message: "Halo", user };
+	})
+
+	.post(
+		"/logout",
+		async ({ set, user, cookie: { aksesToken, refreshToken } }) => {
+			if (!user) {
+				set.status = 400;
+				return { message: "User belum login!" };
+			}
+
+			aksesToken.remove();
+			refreshToken.remove();
+
+			await redis.del(`refreshToken:${user.id}`);
+
+			set.status = 200;
+			return { message: "Logout berhasil" };
+		},
 	);
 
 export default users;

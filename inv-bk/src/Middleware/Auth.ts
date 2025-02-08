@@ -1,29 +1,57 @@
 import type Elysia from "elysia";
-import { verifyTok } from "./Jwt";
+import redis from "../Config/Redis";
+import SkemaUser from "../Models/userModel";
+import { JwtAksesToken, JwtRefreshToken } from "./Jwt";
 
 const AuthUser = (app: Elysia) =>
-	app.derive(async ({ cookie: { aksesToken }, set }) => {
-		if (!aksesToken.value) {
-			set.status = 401;
-			return { message: "Token not found" };
-		}
+	app
+		.use(JwtAksesToken())
+		.use(JwtRefreshToken())
 
-		try {
-			const userLoggedIn = verifyTok(aksesToken.value as string);
+		.derive(
+			async ({
+				cookie: { aksesToken, refreshToken },
+				set,
+				JwtAksesToken,
+				JwtRefreshToken,
+			}) => {
+				if (!aksesToken.value) {
+					set.status = 401;
+					return { message: "Token not found" };
+				}
 
-			if (!userLoggedIn) {
-				set.status = 401;
-				return { message: "Invalid Token" };
-			}
+				try {
+					const userLoggedIn = await JwtAksesToken.verify(
+						aksesToken.value as string,
+					);
 
-            const user = userLoggedIn;
+					if (!userLoggedIn) {
+						set.status = 401;
+						return { message: "Invalid Token" };
+					}
 
-			//Penting!
-			return { user }; //Mengembalikan data user yang sedang login
-		} catch (error) {
-			set.status = 401;
-			return { message: "Unauthorized" };
-		}
-	});
+					const isUserExist = await SkemaUser.findOne({ _id: userLoggedIn.id });
+					if (!isUserExist) {
+						set.status = 401;
+						return { message: "User not found" };
+					}
+
+					const redisToken = await redis.get(`refreshToken:${userLoggedIn.id}`);
+					if (redisToken !== refreshToken.value) {
+						set.status = 401;
+						return { message: "Invalid Token" };
+					}
+
+					const user = userLoggedIn;
+
+					//Penting!
+					return { user };
+					//Mengembalikan data user yang sedang login
+				} catch (error) {
+					set.status = 401;
+					return { message: "Unauthorized" };
+				}
+			},
+		);
 
 export default AuthUser;

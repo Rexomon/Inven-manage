@@ -91,10 +91,10 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			try {
 				const { product_id, product_name, quantity } = body;
-                const userID: string = (user as JwtPayload).id;
-                const username: string = (user as JwtPayload).username;
+				const userID: string = (user as JwtPayload).id;
+				const username: string = (user as JwtPayload).username;
 
-                await InventoryOut.create({
+				await InventoryOut.create({
 					user_id: userID,
 					username_pembuat: username,
 					product_id,

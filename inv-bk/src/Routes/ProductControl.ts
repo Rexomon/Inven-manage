@@ -1,5 +1,4 @@
 import { Elysia, t } from "elysia";
-import type { JwtPayload } from "jsonwebtoken";
 import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
 import InventoryEntry from "../Models/Inven_In";
@@ -30,7 +29,7 @@ const products = new Elysia({ prefix: "/products" })
 			await redis.set("all_products", JSON.stringify(products), "EX", 900);
 
 			set.status = 200;
-            return { products };
+			return { products };
 		} catch (error) {
 			set.status = 400;
 			return { message: error };
@@ -48,8 +47,8 @@ const products = new Elysia({ prefix: "/products" })
 			try {
 				const { name, price, brand, category, countInStock, description } =
 					body;
-                const userID: string = (user as JwtPayload).id;
-                const username: string = (user as JwtPayload).username;
+				const userID: string = user.id as string;
+				const username: string = user.username as string;
 
 				//Menambahkan data ke tabel SkemaProduk
 				const product = await SkemaProduk.create({
@@ -106,10 +105,10 @@ const products = new Elysia({ prefix: "/products" })
 
 			try {
 				const searchProduct = await SkemaProduk.findById(id);
-                const userID: string = (user as JwtPayload).id;
-				const username: string = (user as JwtPayload).username;
+				const userID: string = user.id as string;
+				const username: string = user.username as string;
 
-                if (!searchProduct) {
+				if (!searchProduct) {
 					set.status = 404;
 					return { message: "Product not found" };
 				}
@@ -186,7 +185,6 @@ const products = new Elysia({ prefix: "/products" })
 				}
 				set.status = 200;
 				return { message: "Product updated" };
-
 			} catch (error) {
 				return { message: error };
 			}
@@ -214,8 +212,8 @@ const products = new Elysia({ prefix: "/products" })
 
 			const deletedProduct = await SkemaProduk.findByIdAndDelete(searchProduct);
 
-            const userID: string = (user as JwtPayload).id;
-            const username: string = (user as JwtPayload).username;
+			const userID: string = user.id as string;
+			const username: string = user.username as string;
 
 			if (deletedProduct) {
 				await InventoryOut.create({
