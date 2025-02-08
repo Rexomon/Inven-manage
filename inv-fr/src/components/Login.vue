@@ -23,8 +23,8 @@
 </template>
 
 <script>
-import { ref } from "vue";
 import axios from "axios";
+import { ref } from "vue";
 
 const form = ref({
 	username: "",
@@ -56,16 +56,13 @@ export default {
 					form.value,
 				);
 
-				if (response.data.pesan === "sukses") {
+				if (response.data.pesan === "Sukses Login") {
 					alert("Login berhasil!");
-
 					window.location.href = "/";
 				}
 			} catch (error) {
 				if (error.response.status === 400) {
 					this.statusError = error.response.data.message;
-				} else {
-					console.error(error);
 				}
 			}
 		},

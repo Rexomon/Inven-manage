@@ -84,7 +84,7 @@
           <div class="pt-2">
             <button
               type="submit"
-              class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+              class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Simpan Produk</span>
             </button>

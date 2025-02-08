@@ -4,7 +4,8 @@
         <div class="text-white text-lg font-bold">Riylunz Inventory</div>
         <div class="hidden md:flex space-x-4">
           <router-link to="/" class="text-white hover:text-gray-300">Home</router-link>
-          <router-link to="/login" class="text-white hover:text-gray-300">Sign in</router-link>
+          <router-link v-if="!isLoggedIn" to="/login" class="text-white hover:text-gray-300">Sign in</router-link>
+          <router-link v-if="isLoggedIn" to="#" @click.prevent="handleLogout()" class="text-white hover:text-gray-300">Logout</router-link>
         </div>
         <div class="md:hidden">
           <button @click="toggleMenu" class="text-white focus:outline-none">
@@ -16,21 +17,76 @@
       </div>
       <div v-if="isMenuOpen" class="md:hidden">
         <router-link to="/" class="block text-white hover:text-gray-300 py-2" @click.native="isMenuOpen = false">Home</router-link>
-        <router-link to="/login" class="block text-white hover:text-gray-300 py-2" @click.native="isMenuOpen = false">Sign in</router-link>
+        <router-link v-if="!isLoggedIn" to="/login" class="block text-white hover:text-gray-300 py-2" @click.native="isMenuOpen = false">Sign in</router-link>
+        <router-link v-if="isLoggedIn" to="#" @click.prevent="handleLogout()" class="block text-white hover:text-gray-300 py-2" @click.native="isMenuOpen = false">Logout</router-link>
       </div>
     </nav>
   </template>
 
 <script>
+import axios from "axios";
 export default {
 	data() {
 		return {
 			isMenuOpen: false,
+			isLoggedIn: false,
 		};
 	},
+
+	mounted() {
+		this.checkLogin();
+	},
+
 	methods: {
 		toggleMenu() {
 			this.isMenuOpen = !this.isMenuOpen;
+		},
+
+		async checkLogin() {
+			try {
+				const currentUser = await axios.get(
+					`${import.meta.env.VITE_BACKEND_PORT}/user/current`,
+				);
+
+				const userLogin = currentUser.data.user.username;
+
+				if (userLogin) {
+					this.isLoggedIn = true;
+				}else{
+                    window.location.href = "/";
+                }
+			} catch (error) {
+				if (error.response.status === 401) {
+					await this.refreshLogin();
+				}
+			}
+		},
+		async refreshLogin() {
+			try {
+				const refreshLogin = await axios.post(
+					`${import.meta.env.VITE_BACKEND_PORT}/user/refresh`,
+				);
+
+				if (refreshLogin.data.message === "Token refreshed") {
+					this.isLoggedIn = true;
+				}
+			} catch (error) {
+				if (error.response.status === 401) {
+					this.isLoggedIn = false;
+				}
+			}
+		},
+
+		async handleLogout() {
+			const userLogout = await axios.post(
+				`${import.meta.env.VITE_BACKEND_PORT}/user/logout`,
+			);
+
+			if (userLogout.data.message === "Logout berhasil") {
+				this.isLoggedIn = false;
+				alert("Logout berhasil!");
+				window.location.href = "/login";
+			}
 		},
 	},
 };

@@ -23,8 +23,8 @@
                         <td class="py-2 px-4 border-b">{{ product.description }}</td>
                         <td class="py-2 px-4 border-b">{{ product.countInStock }}</td>
                         <td class="py-2 px-4 border-b">
-                            <button @click="updateProduct(product)" class="action-button bg-blue-500 text-white">Update</button>
-                            <button @click="deleteProduct(product._id)" class="action-button bg-red-500 text-white">Delete</button>
+                            <button @click="updateProduct(product)" class="action-button bg-blue-500 text-white cursor-pointer">Update</button>
+                            <button @click="deleteProduct(product._id)" class="action-button bg-red-500 text-white cursor-pointer">Delete</button>
                         </td>
                     </tr>
                 </tbody>

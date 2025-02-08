@@ -87,13 +87,13 @@
             <button
               type="button"
               @click="$router.push('/list-products')"
-              class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg transition-colors duration-200"
+              class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
-              class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg transition-colors duration-200"
+              class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg transition-colors duration-200 cursor-pointer"
             >
               Simpan Perubahan
             </button>
@@ -158,6 +158,7 @@ export default {
 
 				if (response.status === 200) {
 					alert("Produk berhasil diubah!");
+                    localStorage.removeItem("idProduct");
 					window.location.href = "/list-products";
 				}
 			} catch (error) {

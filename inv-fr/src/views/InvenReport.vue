@@ -149,9 +149,7 @@ export default {
 					`${import.meta.env.VITE_BACKEND_PORT}/inventory/out`,
 				);
 				this.inventoryOut = response.data.invenOut;
-			} catch (error) {
-				console.error("Error fetching inventory out:", error);
-			}
+			} catch (error) {}
 		},
 
 		async getStockChangeLogs() {
@@ -160,9 +158,7 @@ export default {
 					`${import.meta.env.VITE_BACKEND_PORT}/inventory/logs`,
 				);
 				this.stockChangeLogs = response.data.stockChange;
-			} catch (error) {
-				console.error("Error fetching stock change logs:", error);
-			}
+			} catch (error) {}
 		},
 	},
 

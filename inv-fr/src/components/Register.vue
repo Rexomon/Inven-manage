@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import { ref } from "vue";
 import axios from "axios";
+import { ref } from "vue";
 
 const form = ref({
 	username: "",
@@ -66,7 +66,6 @@ export default {
 
 				if (response.data.message === "Pengguna berhasil didaftarkan") {
 					alert("Pengguna berhasil didaftarkan!");
-
 					this.$router.push("/login");
 				}
 			} catch (error) {
