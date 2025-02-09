@@ -45,7 +45,7 @@ const users = new Elysia({ prefix: "/user" })
 					username: userLogin.username,
 					email: userLogin.email,
 					iat: currentTime,
-					exp: currentTime + 900,
+					exp: currentTime + 1800,
 				});
 
 				const refreshAccessToken = await JwtRefreshToken.sign({
@@ -62,7 +62,7 @@ const users = new Elysia({ prefix: "/user" })
 					httpOnly: true,
 					sameSite: "lax",
 					secure: true, // Gunakan "secure: true" jika menggunakan HTTPS
-					maxAge: 900,
+					maxAge: 1800,
 				});
 
 				refreshToken.set({
@@ -170,7 +170,7 @@ const users = new Elysia({ prefix: "/user" })
 				username: user.username,
 				email: user.email,
 				iat: currentTime,
-				exp: currentTime + 900,
+				exp: currentTime + 1800,
 			});
 
 			aksesToken.set({
@@ -178,7 +178,7 @@ const users = new Elysia({ prefix: "/user" })
 				httpOnly: true,
 				sameSite: "lax",
 				secure: true,
-				maxAge: 900,
+				maxAge: 1800,
 			});
 
 			const newRefreshToken = await JwtRefreshToken.sign({
