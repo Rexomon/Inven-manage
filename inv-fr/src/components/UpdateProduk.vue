@@ -86,7 +86,7 @@
           <div class="grid grid-cols-2 gap-3 pt-2">
             <button
               type="button"
-              @click="$router.push('/list-products')"
+              @click.prevent="cancelUpdate()"
               class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg transition-colors duration-200 cursor-pointer"
             >
               Batal
@@ -104,8 +104,8 @@
   </template>
 
   <script>
-import { ref } from "vue";
 import axios from "axios";
+import { ref } from "vue";
 
 export default {
 	data() {
@@ -147,6 +147,11 @@ export default {
 			}
 		},
 
+		cancelUpdate() {
+			this.$router.push("/list-products");
+			localStorage.removeItem("idProduct");
+		},
+
 		async updateBarang() {
 			try {
 				const data = localStorage.getItem("idProduct");
@@ -158,7 +163,7 @@ export default {
 
 				if (response.status === 200) {
 					alert("Produk berhasil diubah!");
-                    localStorage.removeItem("idProduct");
+					localStorage.removeItem("idProduct");
 					window.location.href = "/list-products";
 				}
 			} catch (error) {
