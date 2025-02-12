@@ -25,6 +25,9 @@
 
 <script>
 import axios from "axios";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
 export default {
 	data() {
 		return {
@@ -33,8 +36,26 @@ export default {
 		};
 	},
 
-	mounted() {
-		this.checkLogin();
+	setup() {
+		const toast = useToast();
+		return { toast };
+	},
+
+	watch: {
+		$route: {
+			handler() {
+				const usedRoute = [
+					"/login",
+					"/signup",
+					"/reports",
+					"/list-products",
+					"/add-product",
+				];
+				if (!usedRoute.includes(this.$route.path)) {
+					this.checkLogin();
+				}
+			},
+		},
 	},
 
 	methods: {
@@ -52,9 +73,7 @@ export default {
 
 				if (userLogin) {
 					this.isLoggedIn = true;
-				}else{
-                    window.location.href = "/";
-                }
+				}
 			} catch (error) {
 				if (error.response.status === 401) {
 					await this.refreshLogin();
@@ -84,8 +103,11 @@ export default {
 
 			if (userLogout.data.message === "Logout berhasil") {
 				this.isLoggedIn = false;
-				alert("Logout berhasil!");
-				window.location.href = "/login";
+				this.toast.success("Logout berhasil!");
+
+				// this.isLoggedIn = this.isLoggedIn.filter(
+				// 	(isLoggedIn) => isLoggedIn !== false,
+				// );
 			}
 		},
 	},

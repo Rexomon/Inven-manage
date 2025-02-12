@@ -375,11 +375,10 @@ onMounted(async () => {
 	errorMessage.value = null;
 	try {
 		await Promise.all([getInventoryOut(), getStockChangeLogs()]);
+		isLoading.value = false;
 	} catch (err) {
 		console.error("Error during initial data load:", err);
 		errorMessage.value = "Terjadi kesalahan saat memuat data";
-	} finally {
-		isLoading.value = false;
 	}
 });
 </script>

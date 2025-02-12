@@ -270,7 +270,7 @@ const getInventoryIn = async () => {
 	} catch (error: unknown) {
 		if (axios.isAxiosError(error)) {
 			if (error.response?.status === 401) {
-				toast.error("Anda harus login terlebih dahulu");
+				toast.error("Anda harus login terlebih dahulu!");
 				toast.error(error.message || "Terjadi kesalahan");
 				await router.push("/login");
 			}
@@ -291,26 +291,9 @@ const getInventoryOut = async () => {
 	}
 };
 
-const getStockChangeLogs = async () => {
-	try {
-		const response = await axios.get(
-			`${import.meta.env.VITE_BACKEND_PORT}/inventory/logs`,
-		);
-		stockChangeLogs.value = response.data.stockChange;
-	} catch (error: unknown) {
-		// if (axios.isAxiosError(error)) {
-		// 	toast.error(error.message || "Terjadi kesalahan");
-		// }
-	}
-};
-
 // Lifecycle hooks
 onMounted(async () => {
-	await Promise.all([
-		getInventoryIn(),
-		getInventoryOut(),
-		getStockChangeLogs(),
-	]);
+	await Promise.all([getInventoryIn(), getInventoryOut()]);
 });
 </script>
 

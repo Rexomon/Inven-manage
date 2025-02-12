@@ -30,7 +30,6 @@
 <script>
 import axios from "axios";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 
@@ -42,9 +41,8 @@ const form = ref({
 
 export default {
 	setup() {
-		const router = useRouter();
 		const toast = useToast();
-		return { router, toast };
+		return { toast };
 	},
 	data() {
 		return {
@@ -74,7 +72,7 @@ export default {
 
 				if (response.data.message === "Pengguna berhasil didaftarkan") {
 					this.toast.success("Pengguna berhasil didaftarkan!");
-					this.router.push("/login");
+					this.$router.push("/login");
 				}
 			} catch (error) {
 				if (error.response.data.message === "Username sudah terdaftar") {

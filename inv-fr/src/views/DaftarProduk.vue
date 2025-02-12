@@ -158,7 +158,7 @@ export default {
 
 		async handleAuthError(error) {
 			if (error?.response?.status === 401) {
-				this.toast.error("Anda harus login terlebih dahulu");
+				this.toast.error("Anda harus login terlebih dahulu!");
 				this.toast.error(error.message || "Terjadi kesalahan");
 				this.$router.push("/login");
 			}
