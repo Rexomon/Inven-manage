@@ -106,8 +106,16 @@
   <script>
 import axios from "axios";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
 
 export default {
+	setup() {
+		const router = useRouter();
+		const toast = useToast();
+		return { router, toast };
+	},
 	data() {
 		return {
 			form: ref({
@@ -120,18 +128,16 @@ export default {
 			}),
 		};
 	},
-
 	mounted() {
 		this.productData();
 	},
-
 	methods: {
 		productData() {
 			try {
 				const data = localStorage.getItem("idProduct");
 				if (!data) {
-					console.error("No product data found");
-					this.$router.push("/list-products");
+					this.toast.error("Data produk tidak ditemukan");
+					this.router.push("/list-products");
 					return;
 				}
 				const ambilData = JSON.parse(data);
@@ -142,16 +148,14 @@ export default {
 				this.form.countInStock = ambilData.countInStock;
 				this.form.description = ambilData.description;
 			} catch (error) {
-				console.error("Error loading product data:", error);
-				this.$router.push("/list-products");
+				this.toast.error("Error saat memuat data produk");
+				this.router.push("/list-products");
 			}
 		},
-
 		cancelUpdate() {
-			this.$router.push("/list-products");
+			this.router.push("/list-products");
 			localStorage.removeItem("idProduct");
 		},
-
 		async updateBarang() {
 			try {
 				const data = localStorage.getItem("idProduct");
@@ -160,16 +164,17 @@ export default {
 					`${import.meta.env.VITE_BACKEND_PORT}/products/update/${ambilData._id}`,
 					this.form,
 				);
-
 				if (response.status === 200) {
-					alert("Produk berhasil diubah!");
+					this.toast.success("Produk berhasil diubah!");
 					localStorage.removeItem("idProduct");
-					window.location.href = "/list-products";
+					this.router.push("/list-products");
 				}
 			} catch (error) {
 				if (error.response?.status === 401) {
-					alert("Anda harus login terlebih dahulu!");
-					this.$router.push("/login");
+					this.toast.error("Anda harus login terlebih dahulu!");
+					this.router.push("/login");
+				} else {
+					this.toast.error("Terjadi kesalahan saat mengubah produk");
 				}
 				console.error("Error updating product:", error);
 			}

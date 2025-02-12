@@ -95,10 +95,18 @@
   </template>
 
   <script>
-import { ref } from "vue";
 import axios from "axios";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
 
 export default {
+	setup() {
+		const router = useRouter();
+		const toast = useToast();
+		return { router, toast };
+	},
 	data() {
 		return {
 			form: ref({
@@ -120,15 +128,16 @@ export default {
 				);
 
 				if (response.status === 201) {
-					alert("Produk berhasil ditambahkan!");
-					window.location.href = "/list-products";
+					this.toast.success("Produk berhasil ditambahkan!");
+					this.router.push("/list-products");
 				}
 			} catch (error) {
 				if (error.response?.status === 401) {
-					alert("Anda harus login terlebih dahulu!");
-					this.$router.push("/login");
+					this.toast.error("Anda harus login terlebih dahulu!");
+					this.router.push("/login");
+				} else {
+					this.toast.error("Terjadi kesalahan saat menambah produk");
 				}
-				console.error(error);
 			}
 		},
 	},

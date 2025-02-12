@@ -67,6 +67,8 @@ import {
 import { computed, onMounted, ref } from "vue";
 import { Bar, Line } from "vue-chartjs";
 import { useRouter } from "vue-router";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
 
 // Register ChartJS components
 ChartJS.register(
@@ -95,8 +97,9 @@ interface StockChangeLog {
 	timestamp: string;
 }
 
-// Setup router
+// Setup router and toast
 const router = useRouter();
+const toast = useToast();
 
 // Reactive state
 const inventoryIn = ref<InventoryItem[]>([]);
@@ -265,9 +268,12 @@ const getInventoryIn = async () => {
 		);
 		inventoryIn.value = response.data.invenIn;
 	} catch (error: unknown) {
-		if (axios.isAxiosError(error) && error.response?.status === 401) {
-			alert("Anda harus login terlebih dahulu");
-			await router.push("/login");
+		if (axios.isAxiosError(error)) {
+			if (error.response?.status === 401) {
+				toast.error("Anda harus login terlebih dahulu");
+				toast.error(error.message || "Terjadi kesalahan");
+				await router.push("/login");
+			}
 		}
 	}
 };
@@ -278,7 +284,11 @@ const getInventoryOut = async () => {
 			`${import.meta.env.VITE_BACKEND_PORT}/inventory/out`,
 		);
 		inventoryOut.value = response.data.invenOut;
-	} catch (error) {}
+	} catch (error: unknown) {
+		// if (axios.isAxiosError(error)) {
+		// 	toast.error(error.message || "Terjadi kesalahan");
+		// }
+	}
 };
 
 const getStockChangeLogs = async () => {
@@ -287,7 +297,11 @@ const getStockChangeLogs = async () => {
 			`${import.meta.env.VITE_BACKEND_PORT}/inventory/logs`,
 		);
 		stockChangeLogs.value = response.data.stockChange;
-	} catch (error) {}
+	} catch (error: unknown) {
+		// if (axios.isAxiosError(error)) {
+		// 	toast.error(error.message || "Terjadi kesalahan");
+		// }
+	}
 };
 
 // Lifecycle hooks

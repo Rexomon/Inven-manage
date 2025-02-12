@@ -88,12 +88,16 @@
 
 <script>
 import axios from "axios";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
+
 export default {
 	data() {
 		return {
 			products: [],
 			sortOrder: null,
 			showSortMenu: false,
+			toast: useToast(),
 		};
 	},
 	computed: {
@@ -154,7 +158,8 @@ export default {
 
 		async handleAuthError(error) {
 			if (error?.response?.status === 401) {
-				alert("Anda harus login terlebih dahulu");
+				this.toast.error("Anda harus login terlebih dahulu");
+				this.toast.error(error.message || "Terjadi kesalahan");
 				this.$router.push("/login");
 			}
 		},

@@ -25,6 +25,9 @@
 <script>
 import axios from "axios";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
 
 const form = ref({
 	username: "",
@@ -32,6 +35,11 @@ const form = ref({
 });
 
 export default {
+	setup() {
+		const router = useRouter();
+		const toast = useToast();
+		return { router, toast };
+	},
 	data() {
 		return {
 			form,
@@ -57,11 +65,12 @@ export default {
 				);
 
 				if (response.data.pesan === "Sukses Login") {
-					alert("Login berhasil!");
-					window.location.href = "/";
+					this.toast.success("Login berhasil!");
+					window.location.href("/");
 				}
 			} catch (error) {
 				if (error.response.status === 400) {
+					this.toast.error(error.response.data.message);
 					this.statusError = error.response.data.message;
 				}
 			}
