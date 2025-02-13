@@ -102,6 +102,12 @@ const users = new Elysia({ prefix: "/user" })
 		async ({ body, set }) => {
 			const { username, password, email } = body;
 
+			const usernameRegex = /^\S+$/;
+			if (!username.match(usernameRegex)) {
+				set.status = 422;
+				return { message: "Username tidak boleh mengandung spasi" };
+			}
+
 			// Cek apakah username sudah terdaftar
 			const validateUsername = await userModel.findOne({ username: username });
 			if (validateUsername) {
@@ -129,13 +135,13 @@ const users = new Elysia({ prefix: "/user" })
 		},
 		{
 			body: t.Object({
-				username: t.String(),
+				username: t.String({ pattern: "^\\S+$" }),
 				password: t.String(),
 				email: t.String({ format: "email" }),
 			}),
 		},
 	)
-    // Refresh token
+	// Refresh token
 	.post(
 		"/refresh",
 		async ({
