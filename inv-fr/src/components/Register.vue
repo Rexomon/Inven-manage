@@ -1,27 +1,41 @@
 <template>
-    <div class="flex items-center justify-center min-h-screen bg-gray-100">
-        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-            <h1 class="text-2xl font-bold text-center mb-6">Sign up</h1>
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="glass-container p-8 rounded-lg w-full max-w-md">
+            <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Sign up</h1>
             <form @submit.prevent="submitRegister" class="space-y-4">
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                <input v-model="form.username" type="text" id="username" placeholder="Username" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-                <p v-if="usernameError" class="error-message">{{ usernameError }}</p>
-            </div>
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <input v-model="form.password" type="password" id="password" placeholder="Password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-            </div>
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input v-model="form.email" type="email" id="email" placeholder="Email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-                <p v-if="emailError" class="error-message">{{ emailError }}</p>
-            </div>
-            <p >
-                Sudah punya akun?
-                <RouterLink class="jenck" to="/login">Sign in</RouterLink>
-            </p>
-            <button type="submit" class="w-full py-2 px-4 bg-blue-800 text-white font-semibold rounded-md shadow hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Sign up</button>
+                <div class="input-group">
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input v-model="form.username" type="text" id="username" placeholder="Username" required
+                        class="glass-input" />
+                    <p v-if="usernameError" class="error-message">{{ usernameError }}</p>
+                </div>
+                <div class="input-group">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="relative">
+                        <input v-model="form.password" :type="showPassword ? 'text' : 'password'" id="password"
+                            placeholder="Password" required class="glass-input pr-10" />
+                        <button type="button" @click="togglePassword"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer">
+                            <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input v-model="form.email" type="email" id="email" placeholder="Email" required
+                        class="glass-input" />
+                    <p v-if="emailError" class="error-message">{{ emailError }}</p>
+                </div>
+                <p class="text-gray-700">
+                    Sudah punya akun?
+                    <RouterLink class="text-blue-600 hover:text-blue-800 transition-colors" to="/login">Sign in</RouterLink>
+                </p>
+                <button type="submit"
+                    class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md
+                    shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2
+                    focus:ring-blue-500 transition-all duration-300 cursor-pointer">
+                    Sign up
+                </button>
             </form>
         </div>
     </div>
@@ -49,6 +63,7 @@ export default {
 			form,
 			usernameError: "",
 			emailError: "",
+			showPassword: false,
 		};
 	},
 
@@ -57,12 +72,21 @@ export default {
 			handler() {
 				this.usernameError = "";
 				this.emailError = "";
+				const regex = /^\S+$/;
+
+				if (!regex.test(this.form.username)) {
+					this.usernameError = "Username tidak boleh mengandung spasi";
+				}
 			},
+
 			deep: true,
 		},
 	},
 
 	methods: {
+		togglePassword() {
+			this.showPassword = !this.showPassword;
+		},
 		async submitRegister() {
 			try {
 				const response = await axios.post(
@@ -83,6 +107,10 @@ export default {
 					this.toast.error("Email sudah terdaftar");
 					this.emailError = "Email sudah terdaftar";
 				}
+				if (error.response.status === 422) {
+					this.toast.error("Username tidak boleh mengandung spasi");
+					this.toast.error(error.message);
+				}
 			}
 		},
 	},
@@ -95,22 +123,40 @@ html, body {
     margin: 0;
 }
 
-.error-message {
-    color: red;
+.glass-container {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.jenck {
-    color: #007bff;
+.glass-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1rem;
+    color: #333;
+    border-radius: 0.375rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.glass-input::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
 }
 
 .min-h-screen {
     min-height: 100vh;
-}
-
-  /* Untuk layar dengan lebar maksimum 1024px (desktop kecil) */
-@media (max-width: 1024px) {
-    .min-h-screen {
-        min-height: 100vh;
-    }
 }
 </style>

@@ -104,10 +104,6 @@ export default {
 			if (userLogout.data.message === "Logout berhasil") {
 				this.isLoggedIn = false;
 				this.toast.success("Logout berhasil!");
-
-				// this.isLoggedIn = this.isLoggedIn.filter(
-				// 	(isLoggedIn) => isLoggedIn !== false,
-				// );
 			}
 		},
 	},
