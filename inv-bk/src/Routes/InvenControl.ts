@@ -1,10 +1,10 @@
-import { Elysia, t } from "elysia";
-import type { JwtPayload } from "jsonwebtoken";
+import { Elysia } from "elysia";
 import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
 import InventoryEntry from "../Models/Inven_In";
 import InventoryOut from "../Models/Inven_Out";
 import InventoryProductLog from "../Models/productLogs";
+import { InventoryOutTypes } from "../Types/InventoryTypes";
 
 const inventory = new Elysia({ prefix: "/inventory" })
 	.use(AuthUser)
@@ -29,7 +29,8 @@ const inventory = new Elysia({ prefix: "/inventory" })
 			set.status = 200;
 			return { invenIn };
 		} catch (error) {
-			return { message: error };
+			set.status = 500;
+			console.error(error);
 		}
 	})
 	//Barang keluar
@@ -53,7 +54,8 @@ const inventory = new Elysia({ prefix: "/inventory" })
 			set.status = 200;
 			return { invenOut };
 		} catch (error) {
-			return { message: error };
+			set.status = 500;
+			console.error(error);
 		}
 	})
 	//Log perubahan stok
@@ -77,7 +79,8 @@ const inventory = new Elysia({ prefix: "/inventory" })
 			set.status = 200;
 			return { stockChange };
 		} catch (error) {
-			return { message: error };
+			set.status = 500;
+			console.error(error);
 		}
 	})
 	//Membuat barang keluar secara manual
@@ -91,8 +94,8 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			try {
 				const { product_id, product_name, quantity } = body;
-				const userID: string = (user as JwtPayload).id;
-				const username: string = (user as JwtPayload).username;
+				const userID: string = user.id as string;
+				const username: string = user.username as string;
 
 				await InventoryOut.create({
 					user_id: userID,
@@ -106,19 +109,12 @@ const inventory = new Elysia({ prefix: "/inventory" })
 				set.status = 201;
 				return { message: "Inventory out created" };
 			} catch (error) {
-				set.status = 400;
-				return { message: error };
+				set.status = 500;
+				console.error(error);
 			}
 		},
 		{
-			body: t.Object({
-				user_id: t.String(),
-				username_pembuat: t.String(),
-				product_id: t.String(),
-				product_name: t.String(),
-				quantity: t.Number(),
-				date_out: t.String(),
-			}),
+			body: InventoryOutTypes,
 		},
 	);
 

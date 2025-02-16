@@ -1,10 +1,11 @@
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
 import InventoryEntry from "../Models/Inven_In";
 import InventoryOut from "../Models/Inven_Out";
 import InventoryProductLog from "../Models/productLogs";
 import SkemaProduk from "../Models/productModel";
+import { ProductTypes } from "../Types/ProductTypes";
 
 const products = new Elysia({ prefix: "/products" })
 	.use(AuthUser)
@@ -31,8 +32,8 @@ const products = new Elysia({ prefix: "/products" })
 			set.status = 200;
 			return { products };
 		} catch (error) {
-			set.status = 400;
-			return { message: error };
+			set.status = 500;
+			console.error(error);
 		}
 	})
 	//Membuat produk baru
@@ -79,19 +80,12 @@ const products = new Elysia({ prefix: "/products" })
 				set.status = 201;
 				return { message: "Product created" };
 			} catch (error) {
-				set.status = 400;
-				return { message: error };
+				set.status = 500;
+				console.error(error);
 			}
 		},
 		{
-			body: t.Object({
-				name: t.String(),
-				price: t.Number(),
-				brand: t.String(),
-				category: t.String(),
-				countInStock: t.Number(),
-				description: t.String(),
-			}),
+			body: ProductTypes,
 		},
 	)
 	//Mengupdate produk
@@ -104,10 +98,10 @@ const products = new Elysia({ prefix: "/products" })
 			}
 
 			try {
-				const searchProduct = await SkemaProduk.findById(id);
 				const userID: string = user.id as string;
 				const username: string = user.username as string;
 
+				const searchProduct = await SkemaProduk.findById(id);
 				if (!searchProduct) {
 					set.status = 404;
 					return { message: "Product not found" };
@@ -186,18 +180,12 @@ const products = new Elysia({ prefix: "/products" })
 				set.status = 200;
 				return { message: "Product updated" };
 			} catch (error) {
-				return { message: error };
+				set.status = 500;
+				console.error(error);
 			}
 		},
 		{
-			body: t.Object({
-				name: t.String(),
-				price: t.Number(),
-				brand: t.String(),
-				category: t.String(),
-				countInStock: t.Number(),
-				description: t.String(),
-			}),
+			body: ProductTypes,
 		},
 	)
 	//Menghapus produk
@@ -208,12 +196,16 @@ const products = new Elysia({ prefix: "/products" })
 		}
 
 		try {
-			const searchProduct = await SkemaProduk.findById(id);
-
-			const deletedProduct = await SkemaProduk.findByIdAndDelete(searchProduct);
-
 			const userID: string = user.id as string;
 			const username: string = user.username as string;
+
+			const searchProduct = await SkemaProduk.findById(id);
+			if (!searchProduct) {
+				set.status = 401;
+				return { message: "Product not found" };
+			}
+
+			const deletedProduct = await SkemaProduk.findByIdAndDelete(searchProduct);
 
 			if (deletedProduct) {
 				await InventoryOut.create({
@@ -236,8 +228,8 @@ const products = new Elysia({ prefix: "/products" })
 			set.status = 200;
 			return { message: "Product deleted" };
 		} catch (error) {
-			set.status = 400;
-			return { message: error };
+			set.status = 500;
+			console.error(error);
 		}
 	})
 	.get("/summary", async ({ set }) => {
@@ -252,8 +244,14 @@ const products = new Elysia({ prefix: "/products" })
 
 			//Jika data tidak ada di cache, maka akan diambil dari database
 			const productCount = await SkemaProduk.countDocuments();
-			const lowStock = await SkemaProduk.find({ countInStock: { $lt: 10 } });
-			const outOfStock = await SkemaProduk.find({ countInStock: 0 });
+			const lowStock = await SkemaProduk.find(
+				{ countInStock: { $lte: 10 } },
+				{ name: 1, countInStock: 1, _id: 0 },
+			);
+			const outOfStock = await SkemaProduk.find(
+				{ countInStock: 0 },
+				{ name: 1, countInStock: 1, _id: 0 },
+			);
 
 			const summary = { productCount, lowStock, outOfStock };
 
@@ -263,8 +261,8 @@ const products = new Elysia({ prefix: "/products" })
 			set.status = 200;
 			return { summary };
 		} catch (error) {
-			set.status = 400;
-			return { message: error };
+			set.status = 500;
+			console.error(error);
 		}
 	});
 
