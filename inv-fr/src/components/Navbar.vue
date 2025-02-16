@@ -50,6 +50,7 @@ export default {
 					"/reports",
 					"/list-products",
 					"/add-product",
+					"/update-product",
 				];
 				if (!usedRoute.includes(this.$route.path)) {
 					this.checkLogin();

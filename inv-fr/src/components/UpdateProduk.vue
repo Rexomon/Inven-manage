@@ -144,6 +144,7 @@ export default {
 				this.form.description = ambilData.description;
 			} catch (error) {
 				this.toast.error("Error saat memuat data produk");
+				this.toast.error(error.message);
 				this.$router.push("/list-products");
 			}
 		},
@@ -168,9 +169,9 @@ export default {
 				if (error.response?.status === 401) {
 					this.toast.error("Anda harus login terlebih dahulu!");
 					this.$router.push("/login");
+				} else {
+					this.toast.error(error.message);
 				}
-				this.toast.error("Terjadi kesalahan saat mengubah produk");
-				console.error("Error updating product:", error);
 			}
 		},
 	},

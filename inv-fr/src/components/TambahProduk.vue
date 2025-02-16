@@ -83,7 +83,7 @@
           <div class="pt-2 sm:pt-4">
             <button
               type="submit"
-              class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -135,8 +135,10 @@ export default {
 				if (error.response?.status === 401) {
 					this.toast.error("Anda harus login terlebih dahulu!");
 					this.$router.push("/login");
+				} else {
+					this.toast.error("Terjadi kesalahan saat menambah produk");
+					this.toast.error(error.message);
 				}
-				this.toast.error("Terjadi kesalahan saat menambah produk");
 			}
 		},
 	},

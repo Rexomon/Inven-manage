@@ -273,6 +273,8 @@ const getInventoryIn = async () => {
 				toast.error("Anda harus login terlebih dahulu!");
 				toast.error(error.message || "Terjadi kesalahan");
 				await router.push("/login");
+			} else {
+				this.toast.error(error.message);
 			}
 		}
 	}
@@ -284,11 +286,7 @@ const getInventoryOut = async () => {
 			`${import.meta.env.VITE_BACKEND_PORT}/inventory/out`,
 		);
 		inventoryOut.value = response.data.invenOut;
-	} catch (error: unknown) {
-		// if (axios.isAxiosError(error)) {
-		// 	toast.error(error.message || "Terjadi kesalahan");
-		// }
-	}
+	} catch (error: unknown) {}
 };
 
 // Lifecycle hooks

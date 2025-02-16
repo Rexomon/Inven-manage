@@ -87,6 +87,8 @@ export default {
 				if (error.response.status === 400) {
 					this.toast.error(error.response.data.message);
 					this.statusError = error.response.data.message;
+				} else {
+					this.toast.error(error.message);
 				}
 			}
 		},
