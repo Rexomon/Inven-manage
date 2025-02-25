@@ -6,26 +6,26 @@ const invenOut = new mongoose.Schema({
 		required: true,
 		ref: "User",
 	},
-    product_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: "Product",
-    },
-    category:{
-        type: String,
-        required: true,
-    },
-    brand:{
-        type: String,
-        required: true,
-    },
+	product_id: {
+		type: mongoose.Schema.Types.ObjectId,
+		required: true,
+		ref: "Product",
+	},
+	category: {
+		type: String,
+		required: true,
+	},
+	brand: {
+		type: String,
+		required: true,
+	},
 	username_pembuat: {
 		type: String,
 		required: true,
 	},
-    alasannya:{
-        type: String,
-    },
+	alasannya: {
+		type: String,
+	},
 	product_name: {
 		type: String,
 		required: true,

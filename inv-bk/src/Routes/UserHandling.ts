@@ -1,11 +1,13 @@
 import { Elysia } from "elysia";
 import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
+import Headers from "../Middleware/Headers";
 import { JwtAksesToken, JwtRefreshToken } from "../Middleware/Jwt";
 import userModel from "../Models/userModel";
 import { UserLoginTypes, UserRegisterTypes } from "../Types/UserTypes";
 
 const users = new Elysia({ prefix: "/user" })
+	.use(Headers)
 	.use(JwtAksesToken())
 	.use(JwtRefreshToken())
 	.post(
@@ -87,8 +89,8 @@ const users = new Elysia({ prefix: "/user" })
 					token: { aksesToken: AccessToken, refreshToken: refreshAccessToken },
 				};
 			} catch (error) {
-                set.status = 500;
-                console.error(error);
+				set.status = 500;
+				console.error(error);
 			}
 		},
 		{
@@ -99,44 +101,46 @@ const users = new Elysia({ prefix: "/user" })
 	.post(
 		"/register",
 		async ({ body, set }) => {
-            try {
+			try {
+				const { username, password, email } = body;
 
-                const { username, password, email } = body;
+				const usernameRegex = /^\S+$/;
+				if (!username.match(usernameRegex)) {
+					set.status = 422;
+					return { message: "Username tidak boleh mengandung spasi" };
+				}
 
-                const usernameRegex = /^\S+$/;
-                if (!username.match(usernameRegex)) {
-                    set.status = 422;
-                    return { message: "Username tidak boleh mengandung spasi" };
-                }
+				// Cek apakah username sudah terdaftar
+				const validateUsername = await userModel.findOne({
+					username: username,
+				});
+				if (validateUsername) {
+					set.status = 400;
+					return { message: "Username sudah terdaftar" };
+				}
 
-                // Cek apakah username sudah terdaftar
-                const validateUsername = await userModel.findOne({ username: username });
-                if (validateUsername) {
-                    set.status = 400;
-                    return { message: "Username sudah terdaftar" };
-                }
+				// Cek apakah email sudah terdaftar
+				const validateEmail = await userModel.findOne({ email: email });
+				if (validateEmail) {
+					set.status = 400;
+					return { message: "Email sudah terdaftar" };
+				}
 
-                // Cek apakah email sudah terdaftar
-                const validateEmail = await userModel.findOne({ email: email });
-                if (validateEmail) {
-                    set.status = 400;
-                    return { message: "Email sudah terdaftar" };
-                }
+				const hashPassword = await Bun.password.hash(password);
 
-                const hashPassword = await Bun.password.hash(password);
+				// Jika validasi berhasil, buat pengguna baru
+				await userModel.create({
+					username: username,
+					password: hashPassword,
+					email: email,
+				});
 
-                // Jika validasi berhasil, buat pengguna baru
-                await userModel.create({
-                    username: username,
-                    password: hashPassword,
-                    email: email,
-                });
-                set.status = 201;
-                return { message: "Pengguna berhasil didaftarkan" };
-            }catch (error) {
-                set.status = 500;
-                console.error(error);
-            }
+				set.status = 201;
+				return { message: "Pengguna berhasil didaftarkan" };
+			} catch (error) {
+				set.status = 500;
+				console.error(error);
+			}
 		},
 		{
 			body: UserRegisterTypes,
@@ -151,72 +155,76 @@ const users = new Elysia({ prefix: "/user" })
 			JwtAksesToken,
 			JwtRefreshToken,
 		}) => {
-            try {
-                if (!refreshToken.value) {
-                    set.status = 401;
-                    return { message: "Unauthorized" };
-                }
+			try {
+				if (!refreshToken.value) {
+					set.status = 401;
+					return { message: "Unauthorized" };
+				}
 
-                const storedRefreshToken = await JwtRefreshToken.verify(
-                    refreshToken.value as string,
-                );
-                if (!storedRefreshToken) {
-                    set.status = 401;
-                    return { message: "Unauthorized" };
-                }
+				const storedRefreshToken = await JwtRefreshToken.verify(
+					refreshToken.value as string,
+				);
+				if (!storedRefreshToken) {
+					set.status = 401;
+					return { message: "Unauthorized" };
+				}
 
-                const user = await userModel.findOne({ _id: storedRefreshToken.id });
-                if (!user) {
-                    set.status = 401;
-                    return { message: "Unauthorized" };
-                }
+				const user = await userModel.findOne({ _id: storedRefreshToken.id });
+				if (!user) {
+					set.status = 401;
+					return { message: "Unauthorized" };
+				}
 
-                const currentTime = Math.floor(Date.now() / 1000);
+				const currentTime = Math.floor(Date.now() / 1000);
 
-                const newAccessToken = await JwtAksesToken.sign({
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    iat: currentTime,
-                    exp: currentTime + 1800,
-                });
+				const newAccessToken = await JwtAksesToken.sign({
+					id: user.id,
+					username: user.username,
+					email: user.email,
+					iat: currentTime,
+					exp: currentTime + 1800,
+				});
 
-                aksesToken.set({
-                    value: newAccessToken,
-                    httpOnly: true,
-                    sameSite: "lax",
-                    secure: true,
-                    maxAge: 1800,
-                });
+				aksesToken.set({
+					value: newAccessToken,
+					httpOnly: true,
+					sameSite: "lax",
+					secure: true,
+					maxAge: 1800,
+				});
 
-                const newRefreshToken = await JwtRefreshToken.sign({
-                    id: user.id,
-                    username: user.username,
-                    email: user.email,
-                    iat: currentTime,
-                    exp: currentTime + 604800,
-                });
+				const newRefreshToken = await JwtRefreshToken.sign({
+					id: user.id,
+					username: user.username,
+					email: user.email,
+					iat: currentTime,
+					exp: currentTime + 604800,
+				});
 
-                refreshToken.set({
-                    value: newRefreshToken,
-                    httpOnly: true,
-                    sameSite: "lax",
-                    secure: true,
-                    maxAge: 604800,
-                });
+				refreshToken.set({
+					value: newRefreshToken,
+					httpOnly: true,
+					sameSite: "lax",
+					secure: true,
+					maxAge: 604800,
+				});
 
-                await redis.set(`refreshToken:${user.id}`, newRefreshToken, "EX", 604800);
+				await redis.set(
+					`refreshToken:${user.id}`,
+					newRefreshToken,
+					"EX",
+					604800,
+				);
 
-                set.status = 200;
-                return {
-                    message: "Token refreshed",
-                    token: { aksesToken: newAccessToken, refreshToken: newRefreshToken },
-                };
-            } catch (error) {
-                set.status = 500;
-                console.error(error);
-            }
-
+				set.status = 200;
+				return {
+					message: "Token refreshed",
+					token: { aksesToken: newAccessToken, refreshToken: newRefreshToken },
+				};
+			} catch (error) {
+				set.status = 500;
+				console.error(error);
+			}
 		},
 	)
 

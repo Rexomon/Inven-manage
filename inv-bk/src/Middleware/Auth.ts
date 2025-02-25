@@ -1,20 +1,14 @@
 import type Elysia from "elysia";
 import redis from "../Config/Redis";
 import SkemaUser from "../Models/userModel";
-import { JwtAksesToken, JwtRefreshToken } from "./Jwt";
+import { JwtAksesToken } from "./Jwt";
 
 const AuthUser = (app: Elysia) =>
 	app
 		.use(JwtAksesToken())
-		.use(JwtRefreshToken())
 
 		.derive(
-			async ({
-				cookie: { aksesToken, refreshToken },
-				set,
-				JwtAksesToken,
-				JwtRefreshToken,
-			}) => {
+			async ({ cookie: { aksesToken, refreshToken }, set, JwtAksesToken }) => {
 				if (!aksesToken.value) {
 					set.status = 401;
 					return { message: "Token not found" };

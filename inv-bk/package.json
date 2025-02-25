@@ -12,13 +12,11 @@
         "@elysiajs/jwt": "^1.2.0",
         "elysia": "^1.2.12",
         "ioredis": "^5.5.0",
-        "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.10.0",
         "typescript": "^5.7.3"
     },
     "devDependencies": {
         "@types/cors": "^2.8.17",
-        "@types/jsonwebtoken": "^9.0.8",
         "bun-types": "^1.2.2"
     },
     "module": "src/index.ts"
