@@ -274,7 +274,7 @@ const getInventoryIn = async () => {
 				toast.error(error.message || "Terjadi kesalahan");
 				await router.push("/login");
 			} else {
-				this.toast.error(error.message);
+				toast.error(error.message);
 			}
 		}
 	}
