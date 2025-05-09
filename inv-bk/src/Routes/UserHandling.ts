@@ -1,13 +1,11 @@
 import { Elysia } from "elysia";
 import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
-import Headers from "../Middleware/Headers";
 import { JwtAksesToken, JwtRefreshToken } from "../Middleware/Jwt";
 import userModel from "../Models/userModel";
 import { UserLoginTypes, UserRegisterTypes } from "../Types/UserTypes";
 
 const users = new Elysia({ prefix: "/user" })
-	.use(Headers)
 	.use(JwtAksesToken())
 	.use(JwtRefreshToken())
 	.post(

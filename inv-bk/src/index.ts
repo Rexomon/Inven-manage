@@ -4,17 +4,22 @@ import conToDatabase from "./Database/DatabaseConn";
 import inventory from "./Routes/InvenControl";
 import products from "./Routes/ProductControl";
 import userHandling from "./Routes/UserHandling";
+import Headers from "./Middleware/Headers";
 
 conToDatabase();
 
-const corsOption = {
-	origin: Bun.env.DOMAIN_ORIGIN,
-	credentials: true,
-	methods: ["GET", "POST", "PATCH", "DELETE"],
-};
-
 const app = new Elysia()
-	.use(cors(corsOption))
+	.use(
+		cors({
+			origin: Bun.env.DOMAIN_ORIGIN,
+			credentials: true,
+			methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+			allowedHeaders: ["Content-Type", "Authorization"],
+			preflight: true,
+			maxAge: 86400,
+		}),
+	)
+  .use(Headers)
 	.get("/", async ({ set }) => {
 		set.status = 200;
 		return { message: "Hai!" };
