@@ -10,6 +10,7 @@ const Headers = new Elysia().onRequest(({ set }) => {
 		"upgrade-insecure-requests": "1",
     "access-control-allow-origin": Bun.env.DOMAIN_ORIGIN as string,
     "access-control-allow-credentials": "true",
+    "access-control-allow-headers": "Content-Type, Authorization",
 	};
 });
 

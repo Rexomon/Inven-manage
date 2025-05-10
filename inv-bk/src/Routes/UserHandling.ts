@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
 import { JwtAksesToken, JwtRefreshToken } from "../Middleware/Jwt";
-import userModel from "../Models/userModel";
+import SkemaUser from "../Models/userModel";
 import { UserLoginTypes, UserRegisterTypes } from "../Types/UserTypes";
 
 const users = new Elysia({ prefix: "/user" })
@@ -22,7 +22,7 @@ const users = new Elysia({ prefix: "/user" })
 				const { username, password } = body;
 
 				// Check if username exists in the database
-				const userLogin = await userModel.findOne({ username: username });
+				const userLogin = await SkemaUser.findOne({ username: username });
 				if (!userLogin) {
 					set.status = 400;
 					return { message: "Username atau Password salah" };
@@ -51,8 +51,6 @@ const users = new Elysia({ prefix: "/user" })
 
 				const refreshAccessToken = await JwtRefreshToken.sign({
 					id: userLogin.id,
-					username: userLogin.username,
-					email: userLogin.email,
 					iat: currentTime,
 					exp: currentTime + 604800,
 				});
@@ -109,7 +107,7 @@ const users = new Elysia({ prefix: "/user" })
 				}
 
 				// Cek apakah username sudah terdaftar
-				const validateUsername = await userModel.findOne({
+				const validateUsername = await SkemaUser.findOne({
 					username: username,
 				});
 				if (validateUsername) {
@@ -118,7 +116,7 @@ const users = new Elysia({ prefix: "/user" })
 				}
 
 				// Cek apakah email sudah terdaftar
-				const validateEmail = await userModel.findOne({ email: email });
+				const validateEmail = await SkemaUser.findOne({ email: email });
 				if (validateEmail) {
 					set.status = 400;
 					return { message: "Email sudah terdaftar" };
@@ -127,7 +125,7 @@ const users = new Elysia({ prefix: "/user" })
 				const hashPassword = await Bun.password.hash(password);
 
 				// Jika validasi berhasil, buat pengguna baru
-				await userModel.create({
+				await SkemaUser.create({
 					username: username,
 					password: hashPassword,
 					email: email,
@@ -167,7 +165,7 @@ const users = new Elysia({ prefix: "/user" })
 					return { message: "Unauthorized" };
 				}
 
-				const user = await userModel.findOne({ _id: storedRefreshToken.id });
+				const user = await SkemaUser.findOne({ _id: storedRefreshToken.id });
 				if (!user) {
 					set.status = 401;
 					return { message: "Unauthorized" };
@@ -193,8 +191,6 @@ const users = new Elysia({ prefix: "/user" })
 
 				const newRefreshToken = await JwtRefreshToken.sign({
 					id: user.id,
-					username: user.username,
-					email: user.email,
 					iat: currentTime,
 					exp: currentTime + 604800,
 				});

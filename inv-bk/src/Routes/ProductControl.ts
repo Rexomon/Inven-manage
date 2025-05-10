@@ -199,27 +199,23 @@ const products = new Elysia({ prefix: "/products" })
 			const userID: string = user.id as string;
 			const username: string = user.username as string;
 
-			const searchProduct = await SkemaProduk.findById(id);
-			if (!searchProduct) {
-				set.status = 401;
+			const deletedProduct = await SkemaProduk.findByIdAndDelete(id);
+			if (!deletedProduct) {
+				set.status = 404;
 				return { message: "Product not found" };
 			}
 
-			const deletedProduct = await SkemaProduk.findByIdAndDelete(searchProduct);
-
-			if (deletedProduct) {
-				await InventoryOut.create({
-					user_id: userID,
-					username_pembuat: username,
-					alasannya: "Dihapus",
-					product_id: searchProduct?.id,
-					product_name: searchProduct?.name,
-					category: searchProduct?.category,
-					brand: searchProduct?.brand,
-					quantity: searchProduct?.countInStock,
-					date_out: new Date(),
-				});
-			}
+			await InventoryOut.create({
+				user_id: userID,
+				username_pembuat: username,
+				alasannya: "Dihapus",
+				product_id: deletedProduct?.id,
+				product_name: deletedProduct?.name,
+				category: deletedProduct?.category,
+				brand: deletedProduct?.brand,
+				quantity: deletedProduct?.countInStock,
+				date_out: new Date(),
+			});
 
 			//Menghapus data di cache
 			const redisCache = ["all_products", "product_summary", "inventory_out"];
