@@ -161,9 +161,9 @@ export default {
 				this.toast.error("Anda harus login terlebih dahulu!");
 				this.toast.error(error.message || "Terjadi kesalahan");
 				this.$router.push("/login");
-			}else {
-                this.toast.error(error.message)
-            }
+			} else {
+				this.toast.error(error.message);
+			}
 		},
 
 		async ambilData() {

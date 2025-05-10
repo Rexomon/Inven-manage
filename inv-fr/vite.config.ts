@@ -11,9 +11,9 @@ export default defineConfig({
 			"@": fileURLToPath(new URL("./src", import.meta.url)),
 		},
 	},
-    server:{
-        warmup: {
-            clientFiles: ["./src/components/*.vue", "./src/views/*.vue"],
-        },
-    }
+	server: {
+		warmup: {
+			clientFiles: ["./src/components/*.vue", "./src/views/*.vue"],
+		},
+	},
 });
