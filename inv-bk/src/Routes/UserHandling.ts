@@ -1,8 +1,8 @@
 import { Elysia } from "elysia";
 import redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
-import { JwtAksesToken, JwtRefreshToken } from "../Middleware/Jwt";
 import SkemaUser from "../Models/userModel";
+import { JwtAksesToken, JwtRefreshToken } from "../Middleware/Jwt";
 import { UserLoginTypes, UserRegisterTypes } from "../Types/UserTypes";
 
 const users = new Elysia({ prefix: "/user" })
@@ -72,11 +72,10 @@ const users = new Elysia({ prefix: "/user" })
 					maxAge: 604800,
 				});
 
-				await redis.set(
+				await redis.setex(
 					`refreshToken:${userLogin.id}`,
-					refreshAccessToken,
-					"EX",
 					604800,
+					refreshAccessToken,
 				);
 
 				set.status = 200;
@@ -203,11 +202,10 @@ const users = new Elysia({ prefix: "/user" })
 					maxAge: 604800,
 				});
 
-				await redis.set(
+				await redis.setex(
 					`refreshToken:${user.id}`,
-					newRefreshToken,
-					"EX",
 					604800,
+					newRefreshToken,
 				);
 
 				set.status = 200;

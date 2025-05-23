@@ -24,7 +24,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			const invenIn = await InventoryEntry.find();
 
-			await redis.set("inventory_in", JSON.stringify(invenIn), "EX", 900);
+			await redis.setex("inventory_in", 900, JSON.stringify(invenIn));
 
 			set.status = 200;
 			return { invenIn };
@@ -49,7 +49,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			const invenOut = await InventoryOut.find();
 
-			await redis.set("inventory_out", JSON.stringify(invenOut), "EX", 900);
+			await redis.setex("inventory_out", 900, JSON.stringify(invenOut));
 
 			set.status = 200;
 			return { invenOut };
@@ -74,7 +74,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			const stockChange = await InventoryProductLog.find();
 
-			await redis.set("stock_change", JSON.stringify(stockChange), "EX", 900);
+			await redis.setex("stock_change", 900, JSON.stringify(stockChange));
 
 			set.status = 200;
 			return { stockChange };

@@ -27,7 +27,7 @@ const products = new Elysia({ prefix: "/products" })
 			//Menyimpan data ke cache
 			const products = await SkemaProduk.find();
 
-			await redis.set("all_products", JSON.stringify(products), "EX", 900);
+			await redis.setex("all_products", 900, JSON.stringify(products));
 
 			set.status = 200;
 			return { products };
@@ -252,7 +252,7 @@ const products = new Elysia({ prefix: "/products" })
 			const summary = { productCount, lowStock, outOfStock };
 
 			//Menyimpan data ke cache
-			await redis.set("product_summary", JSON.stringify(summary), "EX", 900);
+			await redis.setex("product_summary", 900, JSON.stringify(summary));
 
 			set.status = 200;
 			return { summary };
