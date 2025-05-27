@@ -177,7 +177,6 @@ const users = new Elysia({ prefix: "/user" })
 					username: user.username,
 					email: user.email,
 					iat: currentTime,
-					exp: currentTime + 1800,
 				});
 
 				aksesToken.set({
@@ -191,7 +190,6 @@ const users = new Elysia({ prefix: "/user" })
 				const newRefreshToken = await JwtRefreshToken.sign({
 					id: user.id,
 					iat: currentTime,
-					exp: currentTime + 604800,
 				});
 
 				refreshToken.set({
