@@ -49,9 +49,10 @@ bun install
 3. Configure environment variables in .env:
 ```bash
 DB_CONNECT = your_mongodb_connection
-PASS_RAHASIA = your_jwt_secret
+JWT_ACCESS_TOKEN = your_jwt_secret
+JWT_REFRESH_TOKEN = your_jwt_secret
 REDIS_PORT =  your_redis_connection
-DOMAIN_ORIGIN = your_domain_origin (http://localhost:5173 or frontend.yourdomain.com)
+DOMAIN_ORIGIN = your_domain_origin (http://localhost:5173 or https://frontend.yourdomain.com)
 ```
 4. Run the development server:
 ```bash
@@ -64,7 +65,7 @@ bun run build
 bun run start
 ```
 
-### Frotend Setup
+### Frontend Setup
 
 1. Navigate to the frontend directory:
 ```bash
@@ -78,7 +79,7 @@ bun install
 
 3. Configure environment variables in .env:
 ```bash
-VITE_BACKEND_PORT=your_backend_url (http://localhost:3000 or api.yourdomain.com)
+VITE_BACKEND_PORT=your_backend_url (http://localhost:3000 or https://api.yourdomain.com)
 ```
 4. Run the development server:
 ```bash
