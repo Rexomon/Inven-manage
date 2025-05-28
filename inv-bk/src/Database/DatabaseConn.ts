@@ -9,11 +9,11 @@ const conToDatabase = async () => {
 	}
 
 	try {
-		const terkoneksi = await mongoose.connect(dbConnectString);
+		const mongooseConnection = await mongoose.connect(dbConnectString);
 		console.log(
 			"Database connected successfully",
-			terkoneksi.connection.host,
-			terkoneksi.connection.name,
+			mongooseConnection.connection.host,
+			mongooseConnection.connection.name,
 		);
 	} catch (error) {
 		console.error("Database connection error:", error);

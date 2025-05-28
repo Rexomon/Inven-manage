@@ -19,6 +19,6 @@ const productSchema = new mongoose.Schema(
 	},
 );
 
-productSchema.index({countInStock: 1})
+productSchema.index({ countInStock: 1 });
 const SkemaProduk = mongoose.model("product", productSchema);
 export default SkemaProduk;

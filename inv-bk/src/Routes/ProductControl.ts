@@ -1,10 +1,10 @@
 import { Elysia } from "elysia";
-import redis from "../Config/Redis";
+import Redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
-import InventoryEntry from "../Models/Inven_In";
-import InventoryOut from "../Models/Inven_Out";
-import InventoryProductLog from "../Models/productLogs";
 import SkemaProduk from "../Models/productModel";
+import InventoryOut from "../Models/Inven_Out";
+import InventoryEntry from "../Models/Inven_In";
+import InventoryProductLog from "../Models/productLogs";
 import { ProductTypes } from "../Types/ProductTypes";
 
 const products = new Elysia({ prefix: "/products" })
@@ -18,7 +18,7 @@ const products = new Elysia({ prefix: "/products" })
 
 		try {
 			//Memeriksa apakah data ada di cache atau tidak
-			const cacheData = await redis.get("all_products");
+			const cacheData = await Redis.get("all_products");
 
 			if (cacheData) {
 				return { products: JSON.parse(cacheData) };
@@ -27,7 +27,7 @@ const products = new Elysia({ prefix: "/products" })
 			//Menyimpan data ke cache
 			const products = await SkemaProduk.find();
 
-			await redis.setex("all_products", 900, JSON.stringify(products));
+			await Redis.setex("all_products", 900, JSON.stringify(products));
 
 			set.status = 200;
 			return { products };
@@ -64,7 +64,7 @@ const products = new Elysia({ prefix: "/products" })
 
 				//Menghapus data di cache
 				const redisCache = ["all_products", "product_summary", "inventory_in"];
-				await redis.del(redisCache);
+				await Redis.del(redisCache);
 
 				//Menambahkan data ke tabel Inventory_In
 				await InventoryEntry.create({
@@ -122,7 +122,7 @@ const products = new Elysia({ prefix: "/products" })
 					"inventory_out",
 					"stock_change",
 				];
-				await redis.del(redisCache);
+				await Redis.del(redisCache);
 
 				const stockSetelahUpdate = updateProduct?.countInStock as number;
 
@@ -219,7 +219,7 @@ const products = new Elysia({ prefix: "/products" })
 
 			//Menghapus data di cache
 			const redisCache = ["all_products", "product_summary", "inventory_out"];
-			await redis.del(redisCache);
+			await Redis.del(redisCache);
 
 			set.status = 200;
 			return { message: "Product deleted" };
@@ -231,7 +231,7 @@ const products = new Elysia({ prefix: "/products" })
 	.get("/summary", async ({ set }) => {
 		try {
 			//Memeriksa apakah data ada di cache atau tidak
-			const cachedSummary = await redis.get("product_summary");
+			const cachedSummary = await Redis.get("product_summary");
 
 			if (cachedSummary) {
 				set.status = 200;
@@ -252,7 +252,7 @@ const products = new Elysia({ prefix: "/products" })
 			const summary = { productCount, lowStock, outOfStock };
 
 			//Menyimpan data ke cache
-			await redis.setex("product_summary", 900, JSON.stringify(summary));
+			await Redis.setex("product_summary", 900, JSON.stringify(summary));
 
 			set.status = 200;
 			return { summary };

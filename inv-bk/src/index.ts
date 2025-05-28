@@ -4,15 +4,15 @@ import swagger from "@elysiajs/swagger";
 import products from "./Routes/ProductControl";
 import inventory from "./Routes/InvenControl";
 import userHandling from "./Routes/UserHandling";
-import conToDatabase, { safelyCloseMongoDB } from "./Database/DatabaseConn";
 import { safelyCloseRedis } from "./Config/Redis";
+import conToDatabase, { safelyCloseMongoDB } from "./Database/DatabaseConn";
 
 await conToDatabase();
 
 const nodeEnv = Bun.env.NODE_ENV;
 const corsDomainOrigin = Bun.env.DOMAIN_ORIGIN;
 
-if (nodeEnv !== "production" && !corsDomainOrigin) {
+if (nodeEnv === "production" && !corsDomainOrigin) {
 	console.error("DOMAIN_ORIGIN is not set in environment variables");
 	process.exit(1);
 }
@@ -49,24 +49,24 @@ console.log(
 
 let isShutDown = false;
 const shutdownServer = async (signal: string) => {
-  if (isShutDown) return;
-  isShutDown = true;
+	if (isShutDown) return;
+	isShutDown = true;
 
-  console.log(`Received ${signal}. Shutting down gracefully...`);
-  try {
-    await Promise.all([
-      await safelyCloseMongoDB(),
-      await safelyCloseRedis(),
-      app.server?.stop(true),
-    ])
-    console.log("Elysia server closed safely");
-    process.exit(0);
-  } catch (error) {
-    console.error(`Error during shutdown: ${error}`);
-  }
-}
+	console.log(`Received ${signal}. Shutting down gracefully...`);
+	try {
+		await Promise.all([
+			safelyCloseMongoDB(),
+			safelyCloseRedis(),
+			app.server?.stop(true),
+		]);
+		console.log("Elysia server closed safely");
+		process.exit(0);
+	} catch (error) {
+		console.error(`Error during shutdown: ${error}`);
+	}
+};
 
 const closeSignals = ["SIGINT", "SIGTERM", "SIGQUIT", "SIGHUP"];
 for (const signalType of closeSignals) {
-  process.on(signalType, () => shutdownServer(signalType));
+	process.on(signalType, () => shutdownServer(signalType));
 }

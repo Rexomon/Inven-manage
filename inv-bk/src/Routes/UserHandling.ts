@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import redis from "../Config/Redis";
+import Redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
 import SkemaUser from "../Models/userModel";
 import { JwtAksesToken, JwtRefreshToken } from "../Middleware/Jwt";
@@ -72,7 +72,7 @@ const users = new Elysia({ prefix: "/user" })
 					maxAge: 604800,
 				});
 
-				await redis.setex(
+				await Redis.setex(
 					`refreshToken:${userLogin.id}`,
 					604800,
 					refreshAccessToken,
@@ -200,11 +200,7 @@ const users = new Elysia({ prefix: "/user" })
 					maxAge: 604800,
 				});
 
-				await redis.setex(
-					`refreshToken:${user.id}`,
-					604800,
-					newRefreshToken,
-				);
+				await Redis.setex(`refreshToken:${user.id}`, 604800, newRefreshToken);
 
 				set.status = 200;
 				return {
@@ -240,7 +236,7 @@ const users = new Elysia({ prefix: "/user" })
 			aksesToken.remove();
 			refreshToken.remove();
 
-			await redis.del(`refreshToken:${user.id}`);
+			await Redis.del(`refreshToken:${user.id}`);
 
 			set.status = 200;
 			return { message: "Logout berhasil" };

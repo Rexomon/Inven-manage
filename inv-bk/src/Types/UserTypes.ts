@@ -1,12 +1,12 @@
 import { t } from "elysia";
 
 export const UserLoginTypes = t.Object({
-	username: t.String(),
-	password: t.String(),
+	username: t.String({ error: "Username cannot be empty", pattern: "^\\S+$" }),
+	password: t.String({ error: "Password cannot be empty" }),
 });
 
 export const UserRegisterTypes = t.Object({
-	username: t.String({ pattern: "^\\S+$" }),
-	password: t.String(),
-	email: t.String({ format: "email" }),
+	username: t.String({ error: "Username cannot be empty", pattern: "^\\S+$" }),
+	password: t.String({ error: "Password cannot be empty" }),
+	email: t.String({ format: "email", error: "Invalid email format" }),
 });

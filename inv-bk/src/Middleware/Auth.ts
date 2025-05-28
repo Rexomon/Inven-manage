@@ -1,5 +1,5 @@
 import type Elysia from "elysia";
-import redis from "../Config/Redis";
+import Redis from "../Config/Redis";
 import SkemaUser from "../Models/userModel";
 import { JwtAksesToken } from "./Jwt";
 
@@ -30,7 +30,7 @@ const AuthUser = (app: Elysia) =>
 						return { message: "User not found" };
 					}
 
-					const redisToken = await redis.get(`refreshToken:${userLoggedIn.id}`);
+					const redisToken = await Redis.get(`refreshToken:${userLoggedIn.id}`);
 					if (redisToken !== refreshToken.value) {
 						set.status = 401;
 						return { message: "Invalid Token" };

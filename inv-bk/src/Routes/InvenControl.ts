@@ -1,10 +1,10 @@
 import { Elysia } from "elysia";
-import redis from "../Config/Redis";
+import Redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
-import InventoryEntry from "../Models/Inven_In";
 import InventoryOut from "../Models/Inven_Out";
+import InventoryEntry from "../Models/Inven_In";
 import InventoryProductLog from "../Models/productLogs";
-import { InventoryOutTypes } from "../Types/InventoryTypes";
+import { InventoryTypes } from "../Types/InventoryTypes";
 
 const inventory = new Elysia({ prefix: "/inventory" })
 	.use(AuthUser)
@@ -16,7 +16,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 		}
 
 		try {
-			const cacheDataIn = await redis.get("inventory_in");
+			const cacheDataIn = await Redis.get("inventory_in");
 
 			if (cacheDataIn) {
 				return { invenIn: JSON.parse(cacheDataIn) };
@@ -24,7 +24,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			const invenIn = await InventoryEntry.find();
 
-			await redis.setex("inventory_in", 900, JSON.stringify(invenIn));
+			await Redis.setex("inventory_in", 900, JSON.stringify(invenIn));
 
 			set.status = 200;
 			return { invenIn };
@@ -41,7 +41,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 		}
 
 		try {
-			const cacheDataOut = await redis.get("inventory_out");
+			const cacheDataOut = await Redis.get("inventory_out");
 
 			if (cacheDataOut) {
 				return { invenOut: JSON.parse(cacheDataOut) };
@@ -49,7 +49,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			const invenOut = await InventoryOut.find();
 
-			await redis.setex("inventory_out", 900, JSON.stringify(invenOut));
+			await Redis.setex("inventory_out", 900, JSON.stringify(invenOut));
 
 			set.status = 200;
 			return { invenOut };
@@ -66,7 +66,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 		}
 
 		try {
-			const cacheProductLog = await redis.get("stock_change");
+			const cacheProductLog = await Redis.get("stock_change");
 
 			if (cacheProductLog) {
 				return { stockChange: JSON.parse(cacheProductLog) };
@@ -74,7 +74,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 
 			const stockChange = await InventoryProductLog.find();
 
-			await redis.setex("stock_change", 900, JSON.stringify(stockChange));
+			await Redis.setex("stock_change", 900, JSON.stringify(stockChange));
 
 			set.status = 200;
 			return { stockChange };
@@ -114,7 +114,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 			}
 		},
 		{
-			body: InventoryOutTypes,
+			body: InventoryTypes,
 		},
 	);
 
