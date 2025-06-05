@@ -214,6 +214,7 @@ const users = new Elysia({ prefix: "/user" })
 		},
 	)
 
+  //==Authenticated Routes==
 	// Get current user
 	.use(AuthUser)
 	.get("/current", async ({ set, user }) => {

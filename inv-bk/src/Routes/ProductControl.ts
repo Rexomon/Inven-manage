@@ -8,8 +8,9 @@ import InventoryProductLog from "../Models/productLogs";
 import { ProductTypes } from "../Types/ProductTypes";
 
 const products = new Elysia({ prefix: "/products" })
-	.use(AuthUser)
+	//==Authenticated Routes==
 	//Mengambil semua produk
+  .use(AuthUser)
 	.get("/", async ({ set, user }) => {
 		if (!user) {
 			set.status = 401;

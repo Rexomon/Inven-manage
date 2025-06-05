@@ -9,6 +9,7 @@ import conToDatabase, { safelyCloseMongoDB } from "./Database/DatabaseConn";
 
 await conToDatabase();
 
+// Set up environment variables
 const nodeEnv = Bun.env.NODE_ENV;
 const corsDomainOrigin = Bun.env.DOMAIN_ORIGIN;
 
@@ -17,6 +18,7 @@ if (nodeEnv === "production" && !corsDomainOrigin) {
 	process.exit(1);
 }
 
+// Initialize Elysia application
 const app = new Elysia();
 
 if (nodeEnv !== "production") {
@@ -47,6 +49,7 @@ console.log(
 	`🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`,
 );
 
+// Graceful shutdown handling
 let isShutDown = false;
 const shutdownServer = async (signal: string) => {
 	if (isShutDown) return;
@@ -60,7 +63,6 @@ const shutdownServer = async (signal: string) => {
 			app.server?.stop(true),
 		]);
 		console.log("Elysia server closed safely");
-		process.exit(0);
 	} catch (error) {
 		console.error(`Error during shutdown: ${error}`);
 	}
