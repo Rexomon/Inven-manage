@@ -63,6 +63,7 @@ const shutdownServer = async (signal: string) => {
 			app.server?.stop(true),
 		]);
 		console.log("Elysia server closed safely");
+		process.exit(0);
 	} catch (error) {
 		console.error(`Error during shutdown: ${error}`);
 	}

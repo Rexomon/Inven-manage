@@ -79,10 +79,7 @@ const users = new Elysia({ prefix: "/user" })
 				);
 
 				set.status = 200;
-				return {
-					pesan: "Sukses Login",
-					token: { aksesToken: AccessToken, refreshToken: refreshAccessToken },
-				};
+				return { pesan: "Sukses Login" };
 			} catch (error) {
 				set.status = 500;
 				console.error(error);
@@ -203,10 +200,7 @@ const users = new Elysia({ prefix: "/user" })
 				await Redis.setex(`refreshToken:${user.id}`, 604800, newRefreshToken);
 
 				set.status = 200;
-				return {
-					message: "Token refreshed",
-					token: { aksesToken: newAccessToken, refreshToken: newRefreshToken },
-				};
+				return { message: "Token refreshed" };
 			} catch (error) {
 				set.status = 500;
 				console.error(error);
@@ -214,7 +208,7 @@ const users = new Elysia({ prefix: "/user" })
 		},
 	)
 
-  //==Authenticated Routes==
+	//==Authenticated Routes==
 	// Get current user
 	.use(AuthUser)
 	.get("/current", async ({ set, user }) => {

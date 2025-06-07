@@ -8,9 +8,9 @@ import { InventoryTypes } from "../Types/InventoryTypes";
 
 const inventory = new Elysia({ prefix: "/inventory" })
 
-  //==Authenticated Routes==
+	//==Authenticated Routes==
 	//Barang masuk
-  .use(AuthUser)
+	.use(AuthUser)
 	.get("/in", async ({ user, set }) => {
 		if (!user) {
 			set.status = 401;

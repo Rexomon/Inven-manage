@@ -1,13 +1,13 @@
 import Redis from "ioredis";
 
-const RedisPort = process.env.REDIS_PORT;
+const RedisUrl = process.env.REDIS_URL;
 
-if (!RedisPort) {
-	console.error("REDIS_PORT is not set in environment variables");
+if (!RedisUrl) {
+	console.error("REDIS_URL is not set in environment variables");
 	process.exit(1);
 }
 
-const redis = new Redis(RedisPort, {
+const redis = new Redis(RedisUrl, {
 	maxRetriesPerRequest: null,
 	enableReadyCheck: true,
 	connectTimeout: 10000,
