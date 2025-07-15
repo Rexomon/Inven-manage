@@ -1,15 +1,16 @@
 import { Elysia } from "elysia";
 import cors from "@elysiajs/cors";
 import swagger from "@elysiajs/swagger";
-import products from "./Routes/ProductControl";
-import inventory from "./Routes/InvenControl";
-import userHandling from "./Routes/UserHandling";
+import UserController from "./Routes/UserControl";
+import ProductController from "./Routes/ProductControl";
+import InventoryController from "./Routes/InvenControl";
 import { safelyCloseRedis } from "./Config/Redis";
-import conToDatabase, { safelyCloseMongoDB } from "./Database/DatabaseConn";
+import { conToDatabase, safelyCloseMongoDB } from "./Database/DatabaseConn";
 
 await conToDatabase();
 
 // Set up environment variables
+const port = Number(Bun.env.PORT) || 3000;
 const nodeEnv = Bun.env.NODE_ENV;
 const corsDomainOrigin = Bun.env.DOMAIN_ORIGIN;
 
@@ -19,7 +20,7 @@ if (nodeEnv === "production" && !corsDomainOrigin) {
 }
 
 // Initialize Elysia application
-const app = new Elysia();
+const app = new Elysia({ prefix: "/v1" });
 
 if (nodeEnv !== "production") {
 	app.use(swagger());
@@ -40,10 +41,10 @@ app
 		set.status = 200;
 		return { message: "Hai!" };
 	})
-	.use(userHandling)
-	.use(products)
-	.use(inventory)
-	.listen(3000);
+	.use(UserController)
+	.use(ProductController)
+	.use(InventoryController)
+	.listen(port);
 
 console.log(
 	`🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`,

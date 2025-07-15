@@ -9,16 +9,16 @@
 	},
 	"dependencies": {
 		"@elysiajs/cors": "^1.3.3",
-		"@elysiajs/jwt": "^1.3.1",
-		"elysia": "^1.3.4",
+		"@elysiajs/jwt": "^1.3.2",
+		"elysia": "^1.3.5",
 		"ioredis": "^5.6.1",
-		"mongoose": "^8.15.1",
+		"mongoose": "^8.16.3",
 		"typescript": "^5.8.3"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
-		"@elysiajs/swagger": "^1.3.0",
-		"bun-types": "^1.2.15"
+		"@biomejs/biome": "^2.1.1",
+		"@elysiajs/swagger": "^1.3.1",
+		"bun-types": "^1.2.18"
 	},
 	"module": "src/index.ts"
 }

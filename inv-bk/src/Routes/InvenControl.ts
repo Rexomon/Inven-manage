@@ -3,25 +3,20 @@ import Redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
 import InventoryOut from "../Models/Inven_Out";
 import InventoryEntry from "../Models/Inven_In";
-import InventoryProductLog from "../Models/productLogs";
+import InventoryProductLog from "../Models/ProductLogs";
 import { InventoryTypes } from "../Types/InventoryTypes";
 
-const inventory = new Elysia({ prefix: "/inventory" })
+const Inventory = new Elysia({ prefix: "/inventory" })
 
 	//==Authenticated Routes==
 	//Barang masuk
 	.use(AuthUser)
-	.get("/in", async ({ user, set }) => {
-		if (!user) {
-			set.status = 401;
-			return { message: "Unauthorized" };
-		}
-
+	.get("/in", async ({ set }) => {
 		try {
-			const cacheDataIn = await Redis.get("inventory_in");
+			const cacheInventoryIn = await Redis.get("inventory_in");
 
-			if (cacheDataIn) {
-				return { invenIn: JSON.parse(cacheDataIn) };
+			if (cacheInventoryIn) {
+				return { invenIn: JSON.parse(cacheInventoryIn) };
 			}
 
 			const invenIn = await InventoryEntry.find();
@@ -36,17 +31,12 @@ const inventory = new Elysia({ prefix: "/inventory" })
 		}
 	})
 	//Barang keluar
-	.get("/out", async ({ user, set }) => {
-		if (!user) {
-			set.status = 401;
-			return { message: "Unauthorized" };
-		}
-
+	.get("/out", async ({ set }) => {
 		try {
-			const cacheDataOut = await Redis.get("inventory_out");
+			const cacheInventoryOut = await Redis.get("inventory_out");
 
-			if (cacheDataOut) {
-				return { invenOut: JSON.parse(cacheDataOut) };
+			if (cacheInventoryOut) {
+				return { invenOut: JSON.parse(cacheInventoryOut) };
 			}
 
 			const invenOut = await InventoryOut.find();
@@ -61,12 +51,7 @@ const inventory = new Elysia({ prefix: "/inventory" })
 		}
 	})
 	//Log perubahan stok
-	.get("/logs", async ({ user, set }) => {
-		if (!user) {
-			set.status = 401;
-			return { message: "Unauthorized" };
-		}
-
+	.get("/logs", async ({ set }) => {
 		try {
 			const cacheProductLog = await Redis.get("stock_change");
 
@@ -89,15 +74,10 @@ const inventory = new Elysia({ prefix: "/inventory" })
 	.post(
 		"/out",
 		async ({ user, body, set }) => {
-			if (!user) {
-				set.status = 401;
-				return { message: "Unauthorized" };
-			}
-
 			try {
 				const { product_id, product_name, quantity } = body;
-				const userID: string = user.id as string;
-				const username: string = user.username as string;
+				const userID = user.id;
+				const username = user.username;
 
 				await InventoryOut.create({
 					user_id: userID,
@@ -120,4 +100,4 @@ const inventory = new Elysia({ prefix: "/inventory" })
 		},
 	);
 
-export default inventory;
+export default Inventory;

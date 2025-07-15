@@ -1,11 +1,11 @@
 import { Elysia } from "elysia";
 import Redis from "../Config/Redis";
 import AuthUser from "../Middleware/Auth";
-import SkemaUser from "../Models/userModel";
+import UserModel from "../Models/UserModel";
 import { JwtAksesToken, JwtRefreshToken } from "../Middleware/Jwt";
 import { UserLoginTypes, UserRegisterTypes } from "../Types/UserTypes";
 
-const users = new Elysia({ prefix: "/user" })
+const Users = new Elysia({ prefix: "/users" })
 	.use(JwtAksesToken())
 	.use(JwtRefreshToken())
 	.post(
@@ -22,7 +22,7 @@ const users = new Elysia({ prefix: "/user" })
 				const { username, password } = body;
 
 				// Check if username exists in the database
-				const userLogin = await SkemaUser.findOne({ username: username });
+				const userLogin = await UserModel.findOne({ username: username });
 				if (!userLogin) {
 					set.status = 400;
 					return { message: "Username atau Password salah" };
@@ -41,19 +41,19 @@ const users = new Elysia({ prefix: "/user" })
 				// Generate access token and refresh token
 				const currentTime = Math.floor(Date.now() / 1000);
 
-				const AccessToken = await JwtAksesToken.sign({
-					id: userLogin.id,
-					username: userLogin.username,
-					email: userLogin.email,
-					iat: currentTime,
-					exp: currentTime + 1800,
-				});
+				const [AccessToken, refreshAccessToken] = await Promise.all([
+					JwtAksesToken.sign({
+						id: userLogin.id,
+						username: userLogin.username,
+						email: userLogin.email,
+						exp: currentTime + 1800,
+					}),
 
-				const refreshAccessToken = await JwtRefreshToken.sign({
-					id: userLogin.id,
-					iat: currentTime,
-					exp: currentTime + 604800,
-				});
+					JwtRefreshToken.sign({
+						id: userLogin.id,
+						exp: currentTime + 604800,
+					}),
+				]);
 
 				// Set the access token and refresh token to the cookie
 				aksesToken.set({
@@ -79,10 +79,11 @@ const users = new Elysia({ prefix: "/user" })
 				);
 
 				set.status = 200;
-				return { pesan: "Sukses Login" };
+				return { message: "Sukses Login" };
 			} catch (error) {
 				set.status = 500;
 				console.error(error);
+				return { message: "Internal server error occurred" };
 			}
 		},
 		{
@@ -96,32 +97,29 @@ const users = new Elysia({ prefix: "/user" })
 			try {
 				const { username, password, email } = body;
 
-				const usernameRegex = /^\S+$/;
-				if (!username.match(usernameRegex)) {
-					set.status = 422;
-					return { message: "Username tidak boleh mengandung spasi" };
-				}
-
-				// Cek apakah username sudah terdaftar
-				const validateUsername = await SkemaUser.findOne({
-					username: username,
+				const validateUser = await UserModel.findOne({
+					$or: [{ username: username }, { email: email }],
 				});
-				if (validateUsername) {
-					set.status = 400;
-					return { message: "Username sudah terdaftar" };
+
+				if (validateUser) {
+					if (validateUser.username === username) {
+						set.status = 409;
+						return { message: "Username sudah terdaftar" };
+					}
+					if (validateUser.email === email) {
+						set.status = 400;
+						return { message: "Email sudah terdaftar" };
+					}
 				}
 
-				// Cek apakah email sudah terdaftar
-				const validateEmail = await SkemaUser.findOne({ email: email });
-				if (validateEmail) {
-					set.status = 400;
-					return { message: "Email sudah terdaftar" };
-				}
-
-				const hashPassword = await Bun.password.hash(password);
+				const hashPassword = await Bun.password.hash(password, {
+					algorithm: "argon2id",
+					memoryCost: 21000,
+					timeCost: 2,
+				});
 
 				// Jika validasi berhasil, buat pengguna baru
-				await SkemaUser.create({
+				await UserModel.create({
 					username: username,
 					password: hashPassword,
 					email: email,
@@ -132,6 +130,7 @@ const users = new Elysia({ prefix: "/user" })
 			} catch (error) {
 				set.status = 500;
 				console.error(error);
+				return { message: "Internal server error occurred" };
 			}
 		},
 		{
@@ -161,7 +160,16 @@ const users = new Elysia({ prefix: "/user" })
 					return { message: "Unauthorized" };
 				}
 
-				const user = await SkemaUser.findOne({ _id: storedRefreshToken.id });
+				// Check if the refresh token matches the one stored in Redis
+				const redisToken = await Redis.get(
+					`refreshToken:${storedRefreshToken.id}`,
+				);
+				if (!redisToken || redisToken !== refreshToken.value) {
+					set.status = 401;
+					return { message: "Unauthorized" };
+				}
+
+				const user = await UserModel.findOne({ _id: storedRefreshToken.id });
 				if (!user) {
 					set.status = 401;
 					return { message: "Unauthorized" };
@@ -169,12 +177,19 @@ const users = new Elysia({ prefix: "/user" })
 
 				const currentTime = Math.floor(Date.now() / 1000);
 
-				const newAccessToken = await JwtAksesToken.sign({
-					id: user.id,
-					username: user.username,
-					email: user.email,
-					iat: currentTime,
-				});
+				const [newAccessToken, newRefreshToken] = await Promise.all([
+					JwtAksesToken.sign({
+						id: user.id,
+						username: user.username,
+						email: user.email,
+						exp: currentTime + 1800,
+					}),
+
+					JwtRefreshToken.sign({
+						id: user.id,
+						exp: currentTime + 604800,
+					}),
+				]);
 
 				aksesToken.set({
 					value: newAccessToken,
@@ -182,11 +197,6 @@ const users = new Elysia({ prefix: "/user" })
 					sameSite: "lax",
 					secure: true,
 					maxAge: 1800,
-				});
-
-				const newRefreshToken = await JwtRefreshToken.sign({
-					id: user.id,
-					iat: currentTime,
 				});
 
 				refreshToken.set({
@@ -211,11 +221,7 @@ const users = new Elysia({ prefix: "/user" })
 	//==Authenticated Routes==
 	// Get current user
 	.use(AuthUser)
-	.get("/current", async ({ set, user }) => {
-		if (!user) {
-			set.status = 401;
-			return { message: "Unauthorized" };
-		}
+	.get("/profile", async ({ set, user }) => {
 		set.status = 200;
 		return { message: "Halo", user };
 	})
@@ -223,11 +229,6 @@ const users = new Elysia({ prefix: "/user" })
 	.post(
 		"/logout",
 		async ({ set, user, cookie: { aksesToken, refreshToken } }) => {
-			if (!user) {
-				set.status = 400;
-				return { message: "User belum login!" };
-			}
-
 			aksesToken.remove();
 			refreshToken.remove();
 
@@ -238,4 +239,4 @@ const users = new Elysia({ prefix: "/user" })
 		},
 	);
 
-export default users;
+export default Users;

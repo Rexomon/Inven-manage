@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const conToDatabase = async () => {
+export const conToDatabase = async () => {
 	const dbConnectString: string = process.env.DB_CONNECT as string;
 
 	if (!dbConnectString) {
@@ -29,5 +29,3 @@ export const safelyCloseMongoDB = async () => {
 		console.error("Error closing MongoDB connection:", error);
 	}
 };
-
-export default conToDatabase;
