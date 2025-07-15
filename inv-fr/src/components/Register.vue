@@ -90,7 +90,7 @@ export default {
 		async submitRegister() {
 			try {
 				const response = await axios.post(
-					`${import.meta.env.VITE_BACKEND_PORT}/user/register`,
+					`${import.meta.env.VITE_BACKEND_PORT}/v1/users/register`,
 					form.value,
 				);
 

@@ -1,14 +1,14 @@
-import './assets/main.css'
+import "./assets/main.css";
 
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-import axios from "axios"
+import axios from "axios";
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
 
 axios.defaults.withCredentials = true;
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(router)
+app.use(router);
 
-app.mount('#app')
+app.mount("#app");

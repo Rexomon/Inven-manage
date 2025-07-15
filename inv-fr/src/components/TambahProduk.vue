@@ -123,7 +123,7 @@ export default {
 		async tambahBarang() {
 			try {
 				const response = await axios.post(
-					`${import.meta.env.VITE_BACKEND_PORT}/products/create`,
+					`${import.meta.env.VITE_BACKEND_PORT}/v1/products/create`,
 					this.form,
 				);
 

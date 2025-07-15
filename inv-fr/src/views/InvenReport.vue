@@ -58,8 +58,8 @@ import {
 	CategoryScale,
 	Chart as ChartJS,
 	Legend,
-	LineElement,
 	LinearScale,
+	LineElement,
 	PointElement,
 	Title,
 	Tooltip,
@@ -264,7 +264,7 @@ const comparisonChartData = computed(() => {
 const getInventoryIn = async () => {
 	try {
 		const response = await axios.get(
-			`${import.meta.env.VITE_BACKEND_PORT}/inventory/in`,
+			`${import.meta.env.VITE_BACKEND_PORT}/v1/inventory/in`,
 		);
 		inventoryIn.value = response.data.invenIn;
 	} catch (error: unknown) {
@@ -283,7 +283,7 @@ const getInventoryIn = async () => {
 const getInventoryOut = async () => {
 	try {
 		const response = await axios.get(
-			`${import.meta.env.VITE_BACKEND_PORT}/inventory/out`,
+			`${import.meta.env.VITE_BACKEND_PORT}/v1/inventory/out`,
 		);
 		inventoryOut.value = response.data.invenOut;
 	} catch (error: unknown) {}

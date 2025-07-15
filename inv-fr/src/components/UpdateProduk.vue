@@ -157,7 +157,7 @@ export default {
 				const data = localStorage.getItem("idProduct");
 				const ambilData = JSON.parse(data);
 				const response = await axios.patch(
-					`${import.meta.env.VITE_BACKEND_PORT}/products/update/${ambilData._id}`,
+					`${import.meta.env.VITE_BACKEND_PORT}/v1/products/update/${ambilData._id}`,
 					this.form,
 				);
 				if (response.status === 200) {

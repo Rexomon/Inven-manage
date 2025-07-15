@@ -107,8 +107,8 @@ import {
 	CategoryScale,
 	Chart as ChartJS,
 	Legend,
-	LineElement,
 	LinearScale,
+	LineElement,
 	PointElement,
 	Title,
 	Tooltip,
@@ -338,7 +338,7 @@ const formatDate = (dateString: string): string => {
 const getInventoryOut = async () => {
 	try {
 		const response = await axios.get<ApiResponse<InventoryOutItem>>(
-			`${import.meta.env.VITE_BACKEND_PORT}/inventory/out`,
+			`${import.meta.env.VITE_BACKEND_PORT}/v1/inventory/out`,
 		);
 		if (response.data.invenOut) {
 			inventoryOut.value = response.data.invenOut;
@@ -358,7 +358,7 @@ const getInventoryOut = async () => {
 const getStockChangeLogs = async () => {
 	try {
 		const response = await axios.get<ApiResponse<never>>(
-			`${import.meta.env.VITE_BACKEND_PORT}/inventory/logs`,
+			`${import.meta.env.VITE_BACKEND_PORT}/v1/inventory/logs`,
 		);
 		if (response.data.stockChange) {
 			stockChangeLogs.value = response.data.stockChange;

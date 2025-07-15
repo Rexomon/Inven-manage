@@ -49,7 +49,7 @@ export default {
 		async fetchData() {
 			try {
 				const response = await axios.get(
-					`${import.meta.env.VITE_BACKEND_PORT}/products/summary`,
+					`${import.meta.env.VITE_BACKEND_PORT}/v1/products/summary`,
 				);
 				const isiData = response.data.summary;
 

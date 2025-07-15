@@ -67,7 +67,7 @@ export default {
 		async checkLogin() {
 			try {
 				const currentUser = await axios.get(
-					`${import.meta.env.VITE_BACKEND_PORT}/user/current`,
+					`${import.meta.env.VITE_BACKEND_PORT}/v1/users/profile`,
 				);
 
 				const userLogin = currentUser.data.user.username;
@@ -84,7 +84,7 @@ export default {
 		async refreshLogin() {
 			try {
 				const refreshLogin = await axios.post(
-					`${import.meta.env.VITE_BACKEND_PORT}/user/refresh`,
+					`${import.meta.env.VITE_BACKEND_PORT}/v1/users/refresh`,
 				);
 
 				if (refreshLogin.data.message === "Token refreshed") {
@@ -99,7 +99,7 @@ export default {
 
 		async handleLogout() {
 			const userLogout = await axios.post(
-				`${import.meta.env.VITE_BACKEND_PORT}/user/logout`,
+				`${import.meta.env.VITE_BACKEND_PORT}/v1/users/logout`,
 			);
 
 			if (userLogout.data.message === "Logout berhasil") {
