@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import cors from "@elysiajs/cors";
+import Headers from "./Middleware/Headers";
 import swagger from "@elysiajs/swagger";
 import UserController from "./Routes/UserControl";
 import ProductController from "./Routes/ProductControl";
@@ -29,14 +30,15 @@ if (nodeEnv !== "production") {
 app
 	.use(
 		cors({
-			origin: Bun.env.DOMAIN_ORIGIN || "*",
-			credentials: true,
+			origin: corsDomainOrigin || "*",
+			credentials: Boolean(corsDomainOrigin),
 			methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
 			allowedHeaders: ["Content-Type"],
 			preflight: true,
 			maxAge: 86400,
 		}),
 	)
+  .use(Headers)
 	.get("/", async ({ set }) => {
 		set.status = 200;
 		return { message: "Hai!" };
