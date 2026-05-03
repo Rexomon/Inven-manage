@@ -2,14 +2,17 @@
 # see all versions at https://hub.docker.com/r/oven/bun/tags
 FROM oven/bun:1 AS base
 
-RUN apt-get update && apt-get install -y curl
+# Install curl, adduser and bash, then clean apt cache
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends curl adduser bash \
+  && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user and group
 RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
 
 WORKDIR /usr/src/app
 
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install
 
 COPY . .
@@ -25,6 +28,6 @@ USER appuser
 
 # Health check using curl to check the main endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-CMD curl -f http://localhost:3000/ || exit 1
+  CMD curl -f "http://localhost:$PORT/v1/" || exit 1
 
 CMD [ "bun", "run", "start" ]
