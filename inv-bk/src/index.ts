@@ -38,7 +38,7 @@ app
 			maxAge: 86400,
 		}),
 	)
-  .use(Headers)
+	.use(Headers)
 	.get("/", async ({ set }) => {
 		set.status = 200;
 		return { message: "Hai!" };

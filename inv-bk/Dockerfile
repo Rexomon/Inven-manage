@@ -1,33 +1,30 @@
-# use the official Bun image
-# see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:1 AS base
+FROM oven/bun AS build
 
-# Install curl, adduser and bash, then clean apt cache
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends curl adduser bash \
-  && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-# Create a non-root user and group
-RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
+# Cache packages installation
+COPY package.json package.json
+COPY bun.lock bun.lock
 
-WORKDIR /usr/src/app
-
-COPY package.json bun.lock ./
 RUN bun install
 
-COPY . .
+COPY ./src ./src
 
-RUN bun run build
 ENV NODE_ENV=production
 
-# Change ownership of the application directory
-RUN chown -R appuser:appgroup /usr/src/app
+RUN bun build \
+	--compile \
+	--minify-whitespace \
+	--minify-syntax \
+	--outfile server \
+	src/index.ts
 
-# Switch to the non-root user
-USER appuser
+FROM gcr.io/distroless/base
 
-# Health check using curl to check the main endpoint
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f "http://localhost:$PORT/v1/" || exit 1
+WORKDIR /app
 
-CMD [ "bun", "run", "start" ]
+COPY --from=build /app/server server
+
+ENV NODE_ENV=production
+
+CMD ["./server"]
